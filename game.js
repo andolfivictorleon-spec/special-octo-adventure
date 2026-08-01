@@ -144,10 +144,10 @@ function answer(correct){
 let score = correct ? 10 : 5;
 
 
-player.biblioteca = score;
-
-
-saveGame();
+upgradeBuilding(
+    "biblioteca",
+    score
+);
 
 
 let level =
