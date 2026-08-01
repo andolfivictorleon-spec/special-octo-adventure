@@ -1,110 +1,68 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Prendi la Stella</title>
-<style>
-body { font-family: Arial, sans-serif; text-align: center; }
-#game {
-width: 320px; height: 420px;
-border: 2px solid #333;
-margin: 12px auto;
-position: relative;
-background: #eef6ff;
-border-radius: 12px;
-overflow: hidden;
-touch-action: manipulation;
-}
-#star {
-position: absolute;
-width: 60px; height: 60px;
-border-radius: 50%;
-background: gold;
-display: none;
-cursor: pointer;
-box-shadow: 0 6px 0 rgba(0,0,0,0.2);
-}
-button { font-size: 18px; padding: 10px 14px; }
-.row { display: flex; gap: 12px; justify-content: center; }
-.box { font-size: 18px; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Città Educativa</title>
+
+    <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-<h1>Prendi la Stella</h1>
 
-<div class="row">
-<div class="box">Punti: <b id="score">0</b></div>
-<div class="box">Tempo: <b id="time">30</b>s</div>
-</div>
+<header>
+    <h1>🏙️ La mia città</h1>
+    <p id="playerInfo"></p>
+</header>
 
-<div id="game">
-<div id="star" title="Cliccami!"></div>
-</div>
 
-<button id="startBtn">Inizia</button>
+<main>
 
-<script>
-const game = document.getElementById("game");
-const star = document.getElementById("star");
-const scoreEl = document.getElementById("score");
-const timeEl = document.getElementById("time");
-const startBtn = document.getElementById("startBtn");
+<section id="city">
 
-let score = 0;
-let timeLeft = 30;
-let timerId = null;
-let playing = false;
+    <button class="building" onclick="openBuilding('municipio')">
+        🏛️<br>
+        Municipio
+    </button>
 
-function moveStar() {
-const maxX = game.clientWidth - star.clientWidth;
-const maxY = game.clientHeight - star.clientHeight;
 
-const x = Math.floor(Math.random() * (maxX + 1));
-const y = Math.floor(Math.random() * (maxY + 1));
+    <button class="building" onclick="openBuilding('biblioteca')">
+        📚<br>
+        Biblioteca
+    </button>
 
-star.style.left = x + "px";
-star.style.top = y + "px";
-star.style.display = "block";
-}
 
-function startGame() {
-score = 0;
-timeLeft = 30;
-playing = true;
-scoreEl.textContent = score;
-timeEl.textContent = timeLeft;
-startBtn.disabled = true;
+    <button class="building">
+        🏠<br>
+        Casa
+    </button>
 
-moveStar();
 
-timerId = setInterval(() => {
-timeLeft--;
-timeEl.textContent = timeLeft;
+    <button class="building">
+        🌳<br>
+        Piazza
+    </button>
 
-if (timeLeft <= 0) {
-endGame();
-}
-}, 1000);
-}
+</section>
 
-function endGame() {
-playing = false;
-clearInterval(timerId);
-timerId = null;
-star.style.display = "none";
-startBtn.disabled = false;
-alert("Fine! Hai fatto " + score + " punti!");
-}
 
-star.addEventListener("click", () => {
-if (!playing) return;
-score++;
-scoreEl.textContent = score;
-moveStar();
-});
 
-startBtn.addEventListener("click", startGame);
-</script>
+<section id="gamePanel">
+
+    <h2>Benvenuto!</h2>
+
+    <p>
+        Clicca un edificio per iniziare.
+    </p>
+
+</section>
+
+
+</main>
+
+
+<script src="game.js"></script>
+
 </body>
 </html>
