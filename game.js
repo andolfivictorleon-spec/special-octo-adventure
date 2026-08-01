@@ -1,8 +1,6 @@
 let player = {
 
-    name:"Giocatore",
-
-    biblioteca:0
+    name:"Giocatore"
 
 };
 
