@@ -39,13 +39,109 @@ function loadGame(){
 
 
 
+const ordineEdifici = ["municipio", "biblioteca", "laboratorio", "museo"];
+
+
+
+function edificioCompletato(nome){
+
+    return buildings[nome].punteggio > 0;
+
+}
+
+
+
+function edificioSbloccato(nome){
+
+    let indice = ordineEdifici.indexOf(nome);
+
+    if(indice === 0){
+        return true;
+    }
+
+    let precedente = ordineEdifici[indice - 1];
+
+    return edificioCompletato(precedente);
+
+}
+
+
+
+function aggiornaBottoniEdifici(){
+
+    ordineEdifici.forEach(function(nome){
+
+        let bottone = document.getElementById("btn-" + nome);
+
+        if(!bottone){
+            return;
+        }
+
+        bottone.disabled = !edificioSbloccato(nome);
+
+    });
+
+}
+
+
+
+const livelliPossibili = ["livello-bronzo", "livello-argento", "livello-oro", "livello-diamante"];
+
+
+
+function aggiornaAspettoEdifici(){
+
+    ordineEdifici.forEach(function(nome){
+
+        let bottone = document.getElementById("btn-" + nome);
+
+        if(!bottone){
+            return;
+        }
+
+        bottone.classList.remove(...livelliPossibili);
+
+        let livello = buildings[nome].livello;
+
+        if(livello === "Bronzo") bottone.classList.add("livello-bronzo");
+        if(livello === "Argento") bottone.classList.add("livello-argento");
+        if(livello === "Oro") bottone.classList.add("livello-oro");
+        if(livello === "Diamante") bottone.classList.add("livello-diamante");
+
+    });
+
+}
+
+
+
+function contaEdificiSbloccati(){
+
+    let contatore = 0;
+
+    for(let nome in buildings){
+
+        if(buildings[nome].livello !== "Bloccato" && buildings[nome].livello !== 0){
+            contatore++;
+        }
+
+    }
+
+    return contatore;
+
+}
+
+
+
 function updateInfo(){
+
+    let sbloccati = contaEdificiSbloccati();
+    let totale = Object.keys(buildings).length;
 
     document.getElementById(
         "playerInfo"
     ).innerHTML =
-    "⭐ Punti biblioteca: "
-    + player.biblioteca;
+    "⭐ Edifici sbloccati: "
+    + sbloccati + "/" + totale;
 
 }
 
@@ -53,197 +149,138 @@ function updateInfo(){
 
 function openBuilding(type){
 
+    if(!edificioSbloccato(type)){
+        return;
+    }
 
-if(type==="biblioteca"){
+    let edificio = buildings[type];
 
+    panel.innerHTML = `
 
-panel.innerHTML = `
+    <h2>${edificio.emoji} ${edificio.nome}</h2>
 
-<h2>📚 Biblioteca</h2>
-
-<p>
-Missione:
-Rispondi al quiz sugli animali.
-</p>
-
-
-<button class="quizButton"
-onclick="startQuiz()">
-
-Inizia missione
-
-</button>
-
-`;
-
-}
+    <p>
+    Missione:
+    ${edificio.missione}
+    </p>
 
 
+    <button class="quizButton"
+    onclick="startQuiz('${type}')">
 
-if(type==="municipio"){
+    Inizia missione
 
+    </button>
 
-panel.innerHTML = `
-
-<h2>🏛️ Municipio</h2>
-
-<p>
-Qui potrai vedere la crescita della città.
-</p>
-
-`;
-
-}
-
+    `;
 
 }
 
 
 
-
-function startQuiz(){
-
-
-panel.innerHTML = `
-
-<h2>Quiz Biblioteca</h2>
+let domandaAttuale = null;
 
 
-<p>
-Quale animale è un mammifero?
-</p>
 
+function startQuiz(type){
 
-<button class="quizButton"
-onclick="answer(false)">
-🐟 Pesce
-</button>
+    let edificio = buildings[type];
 
+    let indiceDomanda = Math.floor(Math.random() * edificio.domande.length);
 
-<button class="quizButton"
-onclick="answer(true)">
-🐶 Cane
-</button>
+    domandaAttuale = edificio.domande[indiceDomanda];
 
+    let bottoni = "";
 
-<button class="quizButton"
-onclick="answer(false)">
-🐦 Aquila
-</button>
+    domandaAttuale.opzioni.forEach(function(opzione, indice){
 
+        bottoni += `
+        <button class="quizButton"
+        onclick="answer('${type}', ${indice})">
+        ${opzione.testo}
+        </button>
+        `;
 
-`;
+    });
+
+    panel.innerHTML = `
+
+    <h2>Quiz ${edificio.nome}</h2>
+
+    <p>
+    ${domandaAttuale.domanda}
+    </p>
+
+    ${bottoni}
+
+    `;
 
 }
 
 
 
-function answer(correct){
+function answer(type, indiceScelto){
+
+    let edificio = buildings[type];
+    let scelta = domandaAttuale.opzioni[indiceScelto];
+
+    let score = scelta.corretta ? 10 : 5;
+
+    let recordPrecedente = edificio.migliore || 0;
+
+    let miglioramento = upgradeBuilding(type, score);
+
+    let messaggioRecord = "";
+
+    if(miglioramento && recordPrecedente > 0){
+
+        messaggioRecord = `<p>🎉 Hai fatto meglio dell'ultima volta! L'edificio cresce!</p>`;
+
+    }
+
+    panel.innerHTML = `
+
+    <h2>Risultato</h2>
+
+    <p>
+    Hai ottenuto ${score}/10
+    </p>
+
+    ${messaggioRecord}
 
 
-let score = correct ? 10 : 5;
+    <div class="level">
+    ${getEmojiForLevel(edificio.livello)}
+    </div>
 
 
-upgradeBuilding(
-    "biblioteca",
-    score
-);
+    <h3>
+    ${edificio.nome} livello ${edificio.livello}
+    </h3>
 
 
-let level =
-calculateLevel(score);
+    <button class="quizButton"
+    onclick="location.reload()">
 
+    Torna alla città
 
+    </button>
 
-panel.innerHTML = `
+    `;
 
-<h2>Risultato</h2>
+    updateInfo();
 
-<p>
-Hai ottenuto ${score}/10
-</p>
+    aggiornaBottoniEdifici();
 
-
-<div class="level">
-${getEmoji(level)}
-</div>
-
-
-<h3>
-Biblioteca livello ${level}
-</h3>
-
-
-<button class="quizButton"
-onclick="location.reload()">
-
-Torna alla città
-
-</button>
-
-`;
-
-updateInfo();
+    aggiornaAspettoEdifici();
 
 
 }
 
 
 
-
-function calculateLevel(score){
-
-
-if(score<=5)
-return "Bronzo";
-
-
-if(score<=7)
-return "Argento";
-
-
-if(score<=9)
-return "Oro";
-
-
-return "Diamante";
-
-
-}
-
-
-
-
-function getEmoji(level){
-
-
-switch(level){
-
-
-case "Bronzo":
-return "📚";
-
-
-case "Argento":
-return "🏫";
-
-
-case "Oro":
-return "🏛️✨";
-
-
-case "Diamante":
-return "🏰💎";
-
-
-}
-
-
-
-}
-
-
-
+loadBuildings();
 loadGame();
-
 updateInfo();
+aggiornaBottoniEdifici();
+aggiornaAspettoEdifici();
