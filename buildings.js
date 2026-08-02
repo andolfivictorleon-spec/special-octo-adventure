@@ -29,15 +29,27 @@ function upgradeBuilding(name,score){
 
 let building = buildings[name];
 
+let recordPrecedente = building.migliore || 0;
+
+let miglioramento = score > recordPrecedente;
+
 
 building.punteggio = score;
 
+if(miglioramento){
 
-building.livello = getLevel(score);
+    building.migliore = score;
+
+}
+
+building.livello = getLevel(building.migliore);
 
 
 
 saveBuildings();
+
+
+return miglioramento;
 
 
 }
@@ -80,6 +92,39 @@ JSON.parse(saved)
 
 }
 
+
+
+}
+
+
+
+function getEmojiForLevel(level){
+
+
+switch(level){
+
+
+case "Bronzo":
+return "📚";
+
+
+case "Argento":
+return "🏫";
+
+
+case "Oro":
+return "🏛️✨";
+
+
+case "Diamante":
+return "🏰💎";
+
+
+default:
+return "🔒";
+
+
+}
 
 
 }
