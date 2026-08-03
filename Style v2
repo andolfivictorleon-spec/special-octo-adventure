@@ -1,0 +1,193 @@
+body {
+
+    margin:0;
+    font-family: Arial, sans-serif;
+
+    background:
+    linear-gradient(
+        #8bd36b,
+        #5db34a
+    );
+
+    min-height:100vh;
+
+    text-align:center;
+
+}
+
+
+header {
+
+    background:#ffffffcc;
+
+    padding:20px;
+
+}
+
+
+
+#city {
+
+    display:grid;
+
+    grid-template-columns:
+    repeat(2,150px);
+
+    gap:34px;
+
+    justify-content:center;
+
+    margin-top:30px;
+
+}
+
+
+
+.building {
+
+    height:130px;
+
+    font-size:22px;
+
+    border:none;
+
+    border-radius:20px;
+
+    background:white;
+
+    cursor:pointer;
+
+    box-shadow:
+    0 5px 10px #0004;
+
+}
+
+
+
+.building:hover {
+
+    transform:scale(1.05);
+
+}
+
+
+.building .lock {
+
+    display:none;
+
+    font-size:16px;
+
+}
+
+
+.building:disabled {
+
+    opacity:0.5;
+
+    cursor:not-allowed;
+
+    transform:none;
+
+}
+
+
+.building:disabled .lock {
+
+    display:block;
+
+}
+
+
+.building {
+
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+}
+
+
+.building.livello-argento {
+
+    box-shadow:0 6px 16px #0006;
+
+    border:3px solid #c0c0c0;
+
+}
+
+
+.building.livello-oro {
+
+    box-shadow:0 8px 20px #ffd54f;
+
+    border:3px solid #ffd54f;
+
+}
+
+
+.building.livello-diamante {
+
+    box-shadow:0 10px 30px #61dafb;
+
+    border:3px solid #61dafb;
+
+    animation: brillare 1.6s ease-in-out infinite alternate;
+
+}
+
+
+@keyframes brillare {
+
+    from { box-shadow:0 10px 20px #61dafb; }
+
+    to { box-shadow:0 14px 30px #61dafb; }
+
+}
+
+
+
+#gamePanel {
+
+    margin:30px auto;
+
+    background:white;
+
+    width:80%;
+
+    max-width:500px;
+
+    border-radius:20px;
+
+    padding:20px;
+
+}
+
+
+
+.quizButton {
+
+    display:block;
+
+    width:90%;
+
+    margin:10px auto;
+
+    padding:15px;
+
+    font-size:18px;
+
+    border-radius:15px;
+
+    border:none;
+
+    background:#ffd54f;
+
+    cursor:pointer;
+
+}
+
+
+
+.level {
+
+    font-size:50px;
+
+}
