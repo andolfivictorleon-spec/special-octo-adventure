@@ -67,50 +67,7 @@ function edificioSbloccato(nome){
 
 
 
-function aggiornaBottoniEdifici(){
-
-    ordineEdifici.forEach(function(nome){
-
-        let bottone = document.getElementById("btn-" + nome);
-
-        if(!bottone){
-            return;
-        }
-
-        bottone.disabled = !edificioSbloccato(nome);
-
-    });
-
-}
-
-
-
-const livelliPossibili = ["livello-bronzo", "livello-argento", "livello-oro", "livello-diamante"];
-
-
-
-function aggiornaAspettoEdifici(){
-
-    ordineEdifici.forEach(function(nome){
-
-        let bottone = document.getElementById("btn-" + nome);
-
-        if(!bottone){
-            return;
-        }
-
-        bottone.classList.remove(...livelliPossibili);
-
-        let livello = buildings[nome].livello;
-
-        if(livello === "Bronzo") bottone.classList.add("livello-bronzo");
-        if(livello === "Argento") bottone.classList.add("livello-argento");
-        if(livello === "Oro") bottone.classList.add("livello-oro");
-        if(livello === "Diamante") bottone.classList.add("livello-diamante");
-
-    });
-
-}
+// (aggiornaBottoniEdifici e aggiornaAspettoEdifici sono definite più sotto, per i modelli 3D)
 
 
 
@@ -370,33 +327,367 @@ function finisciSessione(){
 
 
 
-loadBuildings();
-loadGame();
-updateInfo();
-aggiornaBottoniEdifici();
-aggiornaAspettoEdifici();
+// ---------- Scena 3D: mappa, edifici e personaggio ----------
 
-
-
-// ---------- Movimento del personaggio ----------
-
+const schermataSelezione = document.getElementById("selezionePersonaggio");
+const sezioneCitta = document.getElementById("city");
+const sezioneControlli = document.getElementById("controls");
 const mappa = document.getElementById("city");
-const personaggio = document.getElementById("player");
+
+const canvas3D = document.getElementById("scena3D");
+
+const renderer3D = new THREE.WebGLRenderer({ canvas: canvas3D, antialias: true });
+renderer3D.setSize(mappa.clientWidth || 700, 420, false);
+
+const scena3D = new THREE.Scene();
+
+const camera3D = new THREE.PerspectiveCamera(45, (mappa.clientWidth || 700) / 420, 0.1, 100);
+camera3D.position.set(0, 6.5, 7);
+camera3D.lookAt(0, 0, 0);
+
+scena3D.add(new THREE.AmbientLight(0xffffff, 0.75));
+
+const sole3D = new THREE.DirectionalLight(0xffffff, 0.8);
+sole3D.position.set(4, 6, 3);
+scena3D.add(sole3D);
+
+
+// Il terreno verde
+const terreno = new THREE.Mesh(
+    new THREE.PlaneGeometry(9, 6.5),
+    new THREE.MeshStandardMaterial({ color: 0x8bd36b })
+);
+terreno.rotation.x = -Math.PI / 2;
+scena3D.add(terreno);
+
+
+
+// ---------- Creazione degli edifici 3D ----------
+
+const posizioniEdifici = {
+    municipio:    { x:-2.3, z:-1.6 },
+    biblioteca:   { x: 2.3, z:-1.6 },
+    laboratorio:  { x:-2.3, z: 1.6 },
+    museo:        { x: 2.3, z: 1.6 }
+};
+
+const edificiMesh = {};
+
+
+
+function creaEdificioMunicipio(colore){
+
+    let gruppo = new THREE.Group();
+
+    let corpo = new THREE.Mesh(
+        new THREE.BoxGeometry(1.4, 1.2, 1.2),
+        new THREE.MeshStandardMaterial({ color: colore })
+    );
+    corpo.position.y = 0.6;
+    gruppo.add(corpo);
+
+    let tetto = new THREE.Mesh(
+        new THREE.ConeGeometry(1.1, 0.7, 4),
+        new THREE.MeshStandardMaterial({ color: 0xc0392b })
+    );
+    tetto.position.y = 1.55;
+    tetto.rotation.y = Math.PI / 4;
+    gruppo.add(tetto);
+
+    gruppo.userData.materialiColorati = [corpo.material];
+    gruppo.userData.materialeTetto = tetto.material;
+
+    return gruppo;
+
+}
+
+
+
+function creaEdificioBiblioteca(colore){
+
+    let gruppo = new THREE.Group();
+
+    let corpo = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.75, 0.85, 1.3, 12),
+        new THREE.MeshStandardMaterial({ color: colore })
+    );
+    corpo.position.y = 0.65;
+    gruppo.add(corpo);
+
+    let tetto = new THREE.Mesh(
+        new THREE.ConeGeometry(0.85, 0.6, 12),
+        new THREE.MeshStandardMaterial({ color: 0x5b3a29 })
+    );
+    tetto.position.y = 1.6;
+    gruppo.add(tetto);
+
+    gruppo.userData.materialiColorati = [corpo.material];
+    gruppo.userData.materialeTetto = tetto.material;
+
+    return gruppo;
+
+}
+
+
+
+function creaEdificioLaboratorio(colore){
+
+    let gruppo = new THREE.Group();
+
+    let corpo = new THREE.Mesh(
+        new THREE.BoxGeometry(1.3, 1.1, 1.1),
+        new THREE.MeshStandardMaterial({ color: colore })
+    );
+    corpo.position.y = 0.55;
+    gruppo.add(corpo);
+
+    let provetta = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.18, 0.18, 0.7, 10),
+        new THREE.MeshStandardMaterial({ color: 0x2980b9 })
+    );
+    provetta.position.y = 1.45;
+    gruppo.add(provetta);
+
+    let pallina = new THREE.Mesh(
+        new THREE.SphereGeometry(0.22, 10, 10),
+        new THREE.MeshStandardMaterial({ color: 0x2ecc71, emissive: 0x114411 })
+    );
+    pallina.position.y = 1.85;
+    gruppo.add(pallina);
+
+    gruppo.userData.materialiColorati = [corpo.material];
+    gruppo.userData.materialeTetto = provetta.material;
+
+    return gruppo;
+
+}
+
+
+
+function creaEdificioMuseo(colore){
+
+    let gruppo = new THREE.Group();
+
+    let corpo = new THREE.Mesh(
+        new THREE.BoxGeometry(1.4, 1.0, 1.2),
+        new THREE.MeshStandardMaterial({ color: colore })
+    );
+    corpo.position.y = 0.5;
+    gruppo.add(corpo);
+
+    let cupola = new THREE.Mesh(
+        new THREE.SphereGeometry(0.75, 16, 12, 0, Math.PI * 2, 0, Math.PI / 2),
+        new THREE.MeshStandardMaterial({ color: 0xf1c40f })
+    );
+    cupola.position.y = 1.0;
+    gruppo.add(cupola);
+
+    gruppo.userData.materialiColorati = [corpo.material];
+    gruppo.userData.materialeTetto = cupola.material;
+
+    return gruppo;
+
+}
+
+
+
+const coloriBase = {
+    municipio:   0xf0e6d2,
+    biblioteca:  0xd2a679,
+    laboratorio: 0xeafcff,
+    museo:       0xcaa6e0
+};
+
+const costruttoriEdifici = {
+    municipio: creaEdificioMunicipio,
+    biblioteca: creaEdificioBiblioteca,
+    laboratorio: creaEdificioLaboratorio,
+    museo: creaEdificioMuseo
+};
+
+
+
+ordineEdifici.forEach(function(nome){
+
+    let gruppo = costruttoriEdifici[nome](coloriBase[nome]);
+
+    gruppo.position.set(posizioniEdifici[nome].x, 0, posizioniEdifici[nome].z);
+
+    scena3D.add(gruppo);
+
+    edificiMesh[nome] = gruppo;
+
+});
+
+
+
+function aggiornaBottoniEdifici(){
+
+    // Con la scena 3D il "blocco" si vede colorando l'edificio di grigio,
+    // il controllo se si può entrare resta invariato in edificioSbloccato().
+
+}
+
+
+
+function aggiornaAspettoEdifici(){
+
+    ordineEdifici.forEach(function(nome){
+
+        let gruppo = edificiMesh[nome];
+
+        if(!gruppo){
+            return;
+        }
+
+        let sbloccato = edificioSbloccato(nome);
+        let livello = buildings[nome].livello;
+
+        gruppo.userData.materialiColorati.forEach(function(materiale){
+
+            if(!sbloccato){
+
+                materiale.color.set(0x999999);
+                materiale.transparent = true;
+                materiale.opacity = 0.5;
+
+            } else {
+
+                materiale.color.set(coloriBase[nome]);
+                materiale.transparent = false;
+                materiale.opacity = 1;
+
+            }
+
+        });
+
+        let materialeTetto = gruppo.userData.materialeTetto;
+
+        if(sbloccato && livello === "Diamante"){
+            materialeTetto.emissive = new THREE.Color(0x3399ff);
+            materialeTetto.emissiveIntensity = 0.6;
+        } else if(sbloccato && livello === "Oro"){
+            materialeTetto.emissive = new THREE.Color(0xffd54f);
+            materialeTetto.emissiveIntensity = 0.4;
+        } else {
+            materialeTetto.emissiveIntensity = 0;
+        }
+
+    });
+
+}
+
+
+
+// ---------- Il personaggio 3D (chibi, tondo e buffo) ----------
+
+let gruppoPersonaggio3D = null;
+let orologioAnimazione = 0;
+
+
+
+function creaPersonaggio3D(colore){
+
+    let gruppo = new THREE.Group();
+
+    let materialeColore = new THREE.MeshStandardMaterial({ color: colore });
+    let materialePelle = new THREE.MeshStandardMaterial({ color: 0xffdbac });
+    let materialeOcchi = new THREE.MeshStandardMaterial({ color: 0x2b2438 });
+
+    let corpo = new THREE.Mesh(new THREE.SphereGeometry(0.4, 16, 16), materialeColore);
+    corpo.scale.set(1, 0.85, 1);
+    corpo.position.y = 0.42;
+    gruppo.add(corpo);
+
+    let testa = new THREE.Mesh(new THREE.SphereGeometry(0.42, 16, 16), materialePelle);
+    testa.position.y = 1.05;
+    gruppo.add(testa);
+
+    let occhioSx = new THREE.Mesh(new THREE.SphereGeometry(0.05, 8, 8), materialeOcchi);
+    occhioSx.position.set(-0.15, 1.08, 0.36);
+    gruppo.add(occhioSx);
+
+    let occhioDx = new THREE.Mesh(new THREE.SphereGeometry(0.05, 8, 8), materialeOcchi);
+    occhioDx.position.set(0.15, 1.08, 0.36);
+    gruppo.add(occhioDx);
+
+    let braccioSx = new THREE.Mesh(new THREE.SphereGeometry(0.14, 10, 10), materialeColore);
+    braccioSx.position.set(-0.42, 0.4, 0);
+    gruppo.add(braccioSx);
+
+    let braccioDx = new THREE.Mesh(new THREE.SphereGeometry(0.14, 10, 10), materialeColore);
+    braccioDx.position.set(0.42, 0.4, 0);
+    gruppo.add(braccioDx);
+
+    let gambaSx = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.25, 10), materialePelle);
+    gambaSx.position.set(-0.16, 0.05, 0);
+    gruppo.add(gambaSx);
+
+    let gambaDx = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.25, 10), materialePelle);
+    gambaDx.position.set(0.16, 0.05, 0);
+    gruppo.add(gambaDx);
+
+    return gruppo;
+
+}
+
+
+
+function impostaPersonaggio3D(colore){
+
+    if(gruppoPersonaggio3D){
+
+        scena3D.remove(gruppoPersonaggio3D);
+
+    }
+
+    gruppoPersonaggio3D = creaPersonaggio3D(colore);
+    gruppoPersonaggio3D.position.set(0, 0, 0);
+
+    scena3D.add(gruppoPersonaggio3D);
+
+}
+
+
+
+function animaScena3D(){
+
+    requestAnimationFrame(animaScena3D);
+
+    orologioAnimazione += 0.05;
+
+    if(gruppoPersonaggio3D){
+
+        gruppoPersonaggio3D.position.y = 0.06 + Math.sin(orologioAnimazione) * 0.04;
+
+    }
+
+    renderer3D.render(scena3D, camera3D);
+
+}
+
+animaScena3D();
+
+
+
+// ---------- Movimento nella mappa 3D ----------
 
 let posizioneX = 0;
-let posizioneY = 0;
+let posizioneZ = 0;
 
 let vicinoAttuale = null;
 
-const PASSO = 28;
-const DISTANZA_INGRESSO = 75;
+const PASSO = 0.32;
+const LIMITE_X = 3.3;
+const LIMITE_Z = 2.4;
+const DISTANZA_INGRESSO = 1.3;
 
 
 
 function posizionaIniziale(){
 
-    posizioneX = (mappa.clientWidth / 2) - 20;
-    posizioneY = (mappa.clientHeight / 2) - 20;
+    posizioneX = 0;
+    posizioneZ = 0;
 
     aggiornaPosizionePersonaggio();
 
@@ -406,20 +697,21 @@ function posizionaIniziale(){
 
 function aggiornaPosizionePersonaggio(){
 
-    personaggio.style.left = posizioneX + "px";
-    personaggio.style.top = posizioneY + "px";
+    if(gruppoPersonaggio3D){
+
+        gruppoPersonaggio3D.position.x = posizioneX;
+        gruppoPersonaggio3D.position.z = posizioneZ;
+
+    }
 
 }
 
 
 
-function muovi(dx, dy){
+function muovi(dx, dz){
 
-    let maxX = mappa.clientWidth - personaggio.offsetWidth;
-    let maxY = mappa.clientHeight - personaggio.offsetHeight;
-
-    posizioneX = Math.max(0, Math.min(maxX, posizioneX + dx));
-    posizioneY = Math.max(0, Math.min(maxY, posizioneY + dy));
+    posizioneX = Math.max(-LIMITE_X, Math.min(LIMITE_X, posizioneX + dx));
+    posizioneZ = Math.max(-LIMITE_Z, Math.min(LIMITE_Z, posizioneZ + dz));
 
     aggiornaPosizionePersonaggio();
 
@@ -431,23 +723,13 @@ function muovi(dx, dy){
 
 function controllaVicinanza(){
 
-    let centroGiocatoreX = posizioneX + (personaggio.offsetWidth / 2);
-    let centroGiocatoreY = posizioneY + (personaggio.offsetHeight / 2);
-
     let trovato = null;
 
     ordineEdifici.forEach(function(nome){
 
-        let bottone = document.getElementById("btn-" + nome);
+        let posizioneEdificio = posizioniEdifici[nome];
 
-        if(!bottone){
-            return;
-        }
-
-        let centroEdificioX = bottone.offsetLeft + (bottone.offsetWidth / 2);
-        let centroEdificioY = bottone.offsetTop + (bottone.offsetHeight / 2);
-
-        let distanza = Math.hypot(centroGiocatoreX - centroEdificioX, centroGiocatoreY - centroEdificioY);
+        let distanza = Math.hypot(posizioneX - posizioneEdificio.x, posizioneZ - posizioneEdificio.z);
 
         if(distanza <= DISTANZA_INGRESSO){
             trovato = nome;
@@ -501,104 +783,7 @@ document.addEventListener("keydown", function(evento){
 
 
 
-// ---------- Personaggio 3D (Three.js) ----------
-
-const schermataSelezione = document.getElementById("selezionePersonaggio");
-const sezioneCitta = document.getElementById("city");
-const sezioneControlli = document.getElementById("controls");
-
-const canvas3D = document.getElementById("player");
-
-const renderer3D = new THREE.WebGLRenderer({ canvas: canvas3D, alpha: true, antialias: true });
-renderer3D.setSize(70, 70, false);
-
-const scena3D = new THREE.Scene();
-
-const camera3D = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
-camera3D.position.set(0, 1.4, 4);
-camera3D.lookAt(0, 0.6, 0);
-
-const luceAmbiente = new THREE.AmbientLight(0xffffff, 0.7);
-scena3D.add(luceAmbiente);
-
-const luceDirezionale = new THREE.DirectionalLight(0xffffff, 0.8);
-luceDirezionale.position.set(2, 3, 2);
-scena3D.add(luceDirezionale);
-
-let gruppoPersonaggio3D = null;
-
-
-
-function creaPersonaggio3D(colore){
-
-    let gruppo = new THREE.Group();
-
-    let materiale = new THREE.MeshStandardMaterial({ color: colore });
-    let materialeTesta = new THREE.MeshStandardMaterial({ color: 0xffdbac });
-
-    let testa = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), materialeTesta);
-    testa.position.y = 1.55;
-    gruppo.add(testa);
-
-    let busto = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.8, 0.4), materiale);
-    busto.position.y = 0.95;
-    gruppo.add(busto);
-
-    let braccioSx = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.75, 0.2), materiale);
-    braccioSx.position.set(-0.42, 0.95, 0);
-    gruppo.add(braccioSx);
-
-    let braccioDx = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.75, 0.2), materiale);
-    braccioDx.position.set(0.42, 0.95, 0);
-    gruppo.add(braccioDx);
-
-    let gambaSx = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.75, 0.25), materialeTesta);
-    gambaSx.position.set(-0.16, 0.15, 0);
-    gruppo.add(gambaSx);
-
-    let gambaDx = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.75, 0.25), materialeTesta);
-    gambaDx.position.set(0.16, 0.15, 0);
-    gruppo.add(gambaDx);
-
-    return gruppo;
-
-}
-
-
-
-function impostaPersonaggio3D(colore){
-
-    if(gruppoPersonaggio3D){
-
-        scena3D.remove(gruppoPersonaggio3D);
-
-    }
-
-    gruppoPersonaggio3D = creaPersonaggio3D(colore);
-
-    scena3D.add(gruppoPersonaggio3D);
-
-}
-
-
-
-function animaPersonaggio3D(){
-
-    requestAnimationFrame(animaPersonaggio3D);
-
-    if(gruppoPersonaggio3D){
-
-        gruppoPersonaggio3D.rotation.y += 0.02;
-
-    }
-
-    renderer3D.render(scena3D, camera3D);
-
-}
-
-animaPersonaggio3D();
-
-
+// ---------- Scelta del personaggio ----------
 
 function scegliPersonaggio(colore){
 
@@ -612,6 +797,10 @@ function scegliPersonaggio(colore){
 
     posizionaIniziale();
 
+    renderer3D.setSize(mappa.clientWidth || 700, 420, false);
+    camera3D.aspect = (mappa.clientWidth || 700) / 420;
+    camera3D.updateProjectionMatrix();
+
 }
 
 
@@ -623,6 +812,14 @@ document.getElementById("btnCambiaPersonaggio").addEventListener("click", functi
     sezioneControlli.classList.add("nascosto");
 
 });
+
+
+
+loadBuildings();
+loadGame();
+updateInfo();
+aggiornaBottoniEdifici();
+aggiornaAspettoEdifici();
 
 
 
