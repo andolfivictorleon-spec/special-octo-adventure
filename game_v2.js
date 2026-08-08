@@ -501,19 +501,110 @@ document.addEventListener("keydown", function(evento){
 
 
 
-// ---------- Scelta del personaggio ----------
+// ---------- Personaggio 3D (Three.js) ----------
 
 const schermataSelezione = document.getElementById("selezionePersonaggio");
 const sezioneCitta = document.getElementById("city");
 const sezioneControlli = document.getElementById("controls");
 
+const canvas3D = document.getElementById("player");
+
+const renderer3D = new THREE.WebGLRenderer({ canvas: canvas3D, alpha: true, antialias: true });
+renderer3D.setSize(70, 70, false);
+
+const scena3D = new THREE.Scene();
+
+const camera3D = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
+camera3D.position.set(0, 1.4, 4);
+camera3D.lookAt(0, 0.6, 0);
+
+const luceAmbiente = new THREE.AmbientLight(0xffffff, 0.7);
+scena3D.add(luceAmbiente);
+
+const luceDirezionale = new THREE.DirectionalLight(0xffffff, 0.8);
+luceDirezionale.position.set(2, 3, 2);
+scena3D.add(luceDirezionale);
+
+let gruppoPersonaggio3D = null;
 
 
-function scegliPersonaggio(emoji){
 
-    localStorage.setItem("personaggioScelto", emoji);
+function creaPersonaggio3D(colore){
 
-    personaggio.textContent = emoji;
+    let gruppo = new THREE.Group();
+
+    let materiale = new THREE.MeshStandardMaterial({ color: colore });
+    let materialeTesta = new THREE.MeshStandardMaterial({ color: 0xffdbac });
+
+    let testa = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), materialeTesta);
+    testa.position.y = 1.55;
+    gruppo.add(testa);
+
+    let busto = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.8, 0.4), materiale);
+    busto.position.y = 0.95;
+    gruppo.add(busto);
+
+    let braccioSx = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.75, 0.2), materiale);
+    braccioSx.position.set(-0.42, 0.95, 0);
+    gruppo.add(braccioSx);
+
+    let braccioDx = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.75, 0.2), materiale);
+    braccioDx.position.set(0.42, 0.95, 0);
+    gruppo.add(braccioDx);
+
+    let gambaSx = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.75, 0.25), materialeTesta);
+    gambaSx.position.set(-0.16, 0.15, 0);
+    gruppo.add(gambaSx);
+
+    let gambaDx = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.75, 0.25), materialeTesta);
+    gambaDx.position.set(0.16, 0.15, 0);
+    gruppo.add(gambaDx);
+
+    return gruppo;
+
+}
+
+
+
+function impostaPersonaggio3D(colore){
+
+    if(gruppoPersonaggio3D){
+
+        scena3D.remove(gruppoPersonaggio3D);
+
+    }
+
+    gruppoPersonaggio3D = creaPersonaggio3D(colore);
+
+    scena3D.add(gruppoPersonaggio3D);
+
+}
+
+
+
+function animaPersonaggio3D(){
+
+    requestAnimationFrame(animaPersonaggio3D);
+
+    if(gruppoPersonaggio3D){
+
+        gruppoPersonaggio3D.rotation.y += 0.02;
+
+    }
+
+    renderer3D.render(scena3D, camera3D);
+
+}
+
+animaPersonaggio3D();
+
+
+
+function scegliPersonaggio(colore){
+
+    localStorage.setItem("personaggioScelto", colore);
+
+    impostaPersonaggio3D(colore);
 
     schermataSelezione.classList.add("nascosto");
     sezioneCitta.classList.remove("nascosto");
