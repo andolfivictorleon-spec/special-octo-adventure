@@ -82,13 +82,21 @@ localStorage.getItem("buildings");
 
 if(saved){
 
-Object.assign(
+let datiSalvati = JSON.parse(saved);
 
-buildings,
+for(let nome in datiSalvati){
 
-JSON.parse(saved)
+    if(buildings[nome]){
 
-);
+        buildings[nome].punteggio = datiSalvati[nome].punteggio || 0;
+
+        buildings[nome].migliore = datiSalvati[nome].migliore || 0;
+
+        buildings[nome].livello = datiSalvati[nome].livello || 0;
+
+    }
+
+}
 
 }
 
