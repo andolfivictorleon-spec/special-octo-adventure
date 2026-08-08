@@ -7,6 +7,7 @@
     <title>Città Educativa</title>
 
     <link rel="stylesheet" href="style_v2.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 
 <body>
@@ -24,16 +25,18 @@
 
     <h2>Scegli il tuo personaggio!</h2>
 
+    <p>Un personaggio 3D che si muove nella città</p>
+
     <div id="listaPersonaggi">
 
-        <button class="opzionePersonaggio" onclick="scegliPersonaggio('🧑')">🧑</button>
-        <button class="opzionePersonaggio" onclick="scegliPersonaggio('👧')">👧</button>
-        <button class="opzionePersonaggio" onclick="scegliPersonaggio('👦')">👦</button>
-        <button class="opzionePersonaggio" onclick="scegliPersonaggio('🦸')">🦸</button>
-        <button class="opzionePersonaggio" onclick="scegliPersonaggio('🧙')">🧙</button>
-        <button class="opzionePersonaggio" onclick="scegliPersonaggio('🤖')">🤖</button>
-        <button class="opzionePersonaggio" onclick="scegliPersonaggio('🐱')">🐱</button>
-        <button class="opzionePersonaggio" onclick="scegliPersonaggio('🦊')">🦊</button>
+        <button class="opzionePersonaggio" style="background:#e74c3c" onclick="scegliPersonaggio('#e74c3c')"></button>
+        <button class="opzionePersonaggio" style="background:#3498db" onclick="scegliPersonaggio('#3498db')"></button>
+        <button class="opzionePersonaggio" style="background:#2ecc71" onclick="scegliPersonaggio('#2ecc71')"></button>
+        <button class="opzionePersonaggio" style="background:#9b59b6" onclick="scegliPersonaggio('#9b59b6')"></button>
+        <button class="opzionePersonaggio" style="background:#f39c12" onclick="scegliPersonaggio('#f39c12')"></button>
+        <button class="opzionePersonaggio" style="background:#1abc9c" onclick="scegliPersonaggio('#1abc9c')"></button>
+        <button class="opzionePersonaggio" style="background:#e91e8c" onclick="scegliPersonaggio('#e91e8c')"></button>
+        <button class="opzionePersonaggio" style="background:#34495e" onclick="scegliPersonaggio('#34495e')"></button>
 
     </div>
 
@@ -70,7 +73,7 @@
     </button>
 
 
-    <div id="player">🧑</div>
+    <canvas id="player" width="70" height="70"></canvas>
 
 </section>
 
