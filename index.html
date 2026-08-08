@@ -14,12 +14,33 @@
 <header>
     <h1>🏙️ La mia città</h1>
     <p id="playerInfo"></p>
+    <button id="btnCambiaPersonaggio" class="quizButton">🔄 Cambia personaggio</button>
 </header>
 
 
 <main>
 
-<section id="city">
+<section id="selezionePersonaggio">
+
+    <h2>Scegli il tuo personaggio!</h2>
+
+    <div id="listaPersonaggi">
+
+        <button class="opzionePersonaggio" onclick="scegliPersonaggio('🧑')">🧑</button>
+        <button class="opzionePersonaggio" onclick="scegliPersonaggio('👧')">👧</button>
+        <button class="opzionePersonaggio" onclick="scegliPersonaggio('👦')">👦</button>
+        <button class="opzionePersonaggio" onclick="scegliPersonaggio('🦸')">🦸</button>
+        <button class="opzionePersonaggio" onclick="scegliPersonaggio('🧙')">🧙</button>
+        <button class="opzionePersonaggio" onclick="scegliPersonaggio('🤖')">🤖</button>
+        <button class="opzionePersonaggio" onclick="scegliPersonaggio('🐱')">🐱</button>
+        <button class="opzionePersonaggio" onclick="scegliPersonaggio('🦊')">🦊</button>
+
+    </div>
+
+</section>
+
+
+<section id="city" class="nascosto">
 
     <button class="building" id="btn-municipio" onclick="openBuilding('municipio')">
         🏛️<br>
@@ -54,7 +75,7 @@
 </section>
 
 
-<div id="controls">
+<div id="controls" class="nascosto">
 
     <button id="btnSu" class="ctrlBtn">▲</button>
 
