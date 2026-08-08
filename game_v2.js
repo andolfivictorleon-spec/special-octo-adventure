@@ -178,25 +178,62 @@ function openBuilding(type){
 
 
 
-let domandaAttuale = null;
+let domandeSessione = [];
+let indiceSessione = 0;
+let correttiSessione = 0;
+let edificioSessione = null;
+
+
+
+function mescola(array){
+
+    let copia = array.slice();
+
+    for(let i = copia.length - 1; i > 0; i--){
+
+        let j = Math.floor(Math.random() * (i + 1));
+
+        let temp = copia[i];
+        copia[i] = copia[j];
+        copia[j] = temp;
+
+    }
+
+    return copia;
+
+}
 
 
 
 function startQuiz(type){
 
+    edificioSessione = type;
+
     let edificio = buildings[type];
 
-    let indiceDomanda = Math.floor(Math.random() * edificio.domande.length);
+    domandeSessione = mescola(edificio.domande).slice(0, 5);
 
-    domandaAttuale = edificio.domande[indiceDomanda];
+    indiceSessione = 0;
+    correttiSessione = 0;
+
+    renderDomandaSessione();
+
+}
+
+
+
+function renderDomandaSessione(){
+
+    let edificio = buildings[edificioSessione];
+    let domandaCorrente = domandeSessione[indiceSessione];
 
     let bottoni = "";
 
-    domandaAttuale.opzioni.forEach(function(opzione, indice){
+    domandaCorrente.opzioni.forEach(function(opzione, indice){
 
         bottoni += `
         <button class="quizButton"
-        onclick="answer('${type}', ${indice})">
+        onclick="rispondiSessione(${indice})">
         ${opzione.testo}
         </button>
         `;
@@ -207,8 +244,12 @@ function startQuiz(type){
 
     <h2>Quiz ${edificio.nome}</h2>
 
+    <p class="quizProgresso">
+    Domanda ${indiceSessione + 1} di ${domandeSessione.length}
+    </p>
+
     <p>
-    ${domandaAttuale.domanda}
+    ${domandaCorrente.domanda}
     </p>
 
     ${bottoni}
@@ -219,16 +260,66 @@ function startQuiz(type){
 
 
 
-function answer(type, indiceScelto){
+function rispondiSessione(indiceScelto){
 
+    let domandaCorrente = domandeSessione[indiceSessione];
+    let scelta = domandaCorrente.opzioni[indiceScelto];
+
+    if(scelta.corretta){
+        correttiSessione++;
+    }
+
+    let messaggio = scelta.corretta
+        ? "✅ Esatto!"
+        : "❌ Sbagliato!";
+
+    let ultimaDomanda = (indiceSessione === domandeSessione.length - 1);
+
+    panel.innerHTML = `
+
+    <h2>${messaggio}</h2>
+
+    <button class="quizButton"
+    onclick="prossimaDomandaSessione()">
+
+    ${ultimaDomanda ? "Vedi risultato" : "Prossima domanda"}
+
+    </button>
+
+    `;
+
+}
+
+
+
+function prossimaDomandaSessione(){
+
+    indiceSessione++;
+
+    if(indiceSessione < domandeSessione.length){
+
+        renderDomandaSessione();
+
+    } else {
+
+        finisciSessione();
+
+    }
+
+}
+
+
+
+function finisciSessione(){
+
+    let type = edificioSessione;
     let edificio = buildings[type];
-    let scelta = domandaAttuale.opzioni[indiceScelto];
 
-    let score = scelta.corretta ? 10 : 5;
+    let punteggio = 5 + correttiSessione;
 
     let recordPrecedente = edificio.migliore || 0;
 
-    let miglioramento = upgradeBuilding(type, score);
+    let miglioramento = upgradeBuilding(type, punteggio);
 
     let messaggioRecord = "";
 
@@ -243,7 +334,7 @@ function answer(type, indiceScelto){
     <h2>Risultato</h2>
 
     <p>
-    Hai ottenuto ${score}/10
+    Hai risposto bene a ${correttiSessione} domande su ${domandeSessione.length}
     </p>
 
     ${messaggioRecord}
