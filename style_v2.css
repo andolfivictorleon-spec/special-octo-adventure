@@ -13,6 +13,8 @@ body {
 
     text-align:center;
 
+    padding-bottom:160px;
+
 }
 
 
@@ -28,22 +30,27 @@ header {
 
 #city {
 
-    display:grid;
+    position:relative;
 
-    grid-template-columns:
-    repeat(2,150px);
+    width:100%;
 
-    gap:34px;
+    max-width:600px;
 
-    justify-content:center;
+    height:420px;
 
-    margin-top:30px;
+    margin:30px auto 10px;
+
+    overflow:hidden;
 
 }
 
 
 
 .building {
+
+    position:absolute;
+
+    width:130px;
 
     height:130px;
 
@@ -59,6 +66,83 @@ header {
 
     box-shadow:
     0 5px 10px #0004;
+
+}
+
+
+#btn-municipio { top:10px; left:5%; }
+#btn-biblioteca { top:10px; right:5%; }
+#btn-laboratorio { bottom:10px; left:5%; }
+#btn-museo { bottom:10px; right:5%; }
+
+
+#player {
+
+    position:absolute;
+
+    font-size:40px;
+
+    line-height:1;
+
+    z-index:5;
+
+    transition: left 0.15s linear, top 0.15s linear;
+
+    pointer-events:none;
+
+}
+
+
+
+#controls {
+
+    position:fixed;
+
+    bottom:16px;
+
+    left:50%;
+
+    transform:translateX(-50%);
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    gap:6px;
+
+    z-index:10;
+
+}
+
+
+.controlsRiga {
+
+    display:flex;
+
+    gap:56px;
+
+}
+
+
+.ctrlBtn {
+
+    width:52px;
+
+    height:52px;
+
+    border-radius:50%;
+
+    border:none;
+
+    background:#ffffffee;
+
+    box-shadow:0 4px 10px #0004;
+
+    font-size:20px;
+
+    cursor:pointer;
 
 }
 
