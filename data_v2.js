@@ -12,97 +12,97 @@ const buildings = {
 
         migliore:0,
 
-        missione:"Rispondi al quiz sugli animali.",
+        missione:"Rispondi al quiz di cultura generale.",
 
         domande:[
 
             {
-                domanda:"Quale animale è un mammifero?",
+                domanda:"Chi ha scritto \"Pinocchio\"?",
                 opzioni:[
-                    { testo:"🐟 Pesce", corretta:false },
-                    { testo:"🐶 Cane", corretta:true },
-                    { testo:"🐦 Aquila", corretta:false }
+                    { testo:"✍️ Carlo Collodi", corretta:true },
+                    { testo:"✍️ Dante Alighieri", corretta:false },
+                    { testo:"✍️ Alessandro Manzoni", corretta:false }
                 ]
             },
 
             {
-                domanda:"Quale animale vive nell'acqua?",
+                domanda:"Come si chiama il libro che spiega il significato delle parole?",
                 opzioni:[
-                    { testo:"🦁 Leone", corretta:false },
-                    { testo:"🐬 Delfino", corretta:true },
-                    { testo:"🐔 Gallina", corretta:false }
+                    { testo:"📔 Diario", corretta:false },
+                    { testo:"📖 Dizionario", corretta:true },
+                    { testo:"📓 Quaderno", corretta:false }
                 ]
             },
 
             {
-                domanda:"Quale animale sa volare?",
+                domanda:"In quale continente si trova l'Egitto?",
                 opzioni:[
-                    { testo:"🐸 Rana", corretta:false },
-                    { testo:"🐦 Passero", corretta:true },
-                    { testo:"🐢 Tartaruga", corretta:false }
+                    { testo:"🌍 Africa", corretta:true },
+                    { testo:"🌏 Asia", corretta:false },
+                    { testo:"🌎 Europa", corretta:false }
                 ]
             },
 
             {
-                domanda:"Quale animale ha il collo lunghissimo?",
+                domanda:"Chi ha scritto \"Il Piccolo Principe\"?",
                 opzioni:[
-                    { testo:"🦒 Giraffa", corretta:true },
-                    { testo:"🐘 Elefante", corretta:false },
-                    { testo:"🐊 Coccodrillo", corretta:false }
+                    { testo:"✍️ Antoine de Saint-Exupéry", corretta:true },
+                    { testo:"✍️ J.K. Rowling", corretta:false },
+                    { testo:"✍️ Roald Dahl", corretta:false }
                 ]
             },
 
             {
-                domanda:"Quale animale costruisce dighe nei fiumi?",
+                domanda:"Qual è considerato il fiume più lungo del mondo?",
                 opzioni:[
-                    { testo:"🐱 Gatto", corretta:false },
-                    { testo:"🦫 Castoro", corretta:true },
-                    { testo:"🐴 Cavallo", corretta:false }
+                    { testo:"🌊 Il Nilo", corretta:true },
+                    { testo:"🌊 Il Po", corretta:false },
+                    { testo:"🌊 Il Tevere", corretta:false }
                 ]
             },
 
             {
-                domanda:"Quale animale vive nel deserto e ha le gobbe?",
+                domanda:"Come si chiama la scrittura con i disegnini dell'antico Egitto?",
                 opzioni:[
-                    { testo:"🐧 Pinguino", corretta:false },
-                    { testo:"🐫 Cammello", corretta:true },
-                    { testo:"🐻 Orso", corretta:false }
+                    { testo:"𓁿 Geroglifici", corretta:true },
+                    { testo:"🔤 Alfabeto latino", corretta:false },
+                    { testo:"😀 Emoji", corretta:false }
                 ]
             },
 
             {
-                domanda:"Quale animale è chiamato il re della savana?",
+                domanda:"In che anno Cristoforo Colombo arrivò in America?",
                 opzioni:[
-                    { testo:"🦁 Leone", corretta:true },
-                    { testo:"🐇 Coniglio", corretta:false },
-                    { testo:"🐭 Topo", corretta:false }
+                    { testo:"🗓️ 1492", corretta:true },
+                    { testo:"🗓️ 1800", corretta:false },
+                    { testo:"🗓️ 1000", corretta:false }
                 ]
             },
 
             {
-                domanda:"Quale animale depone le uova?",
+                domanda:"Come si chiama una storia inventata con animali che parlano e insegna una lezione?",
                 opzioni:[
-                    { testo:"🐔 Gallina", corretta:true },
-                    { testo:"🐶 Cane", corretta:false },
-                    { testo:"🐱 Gatto", corretta:false }
+                    { testo:"🦊 Favola", corretta:true },
+                    { testo:"📰 Biografia", corretta:false },
+                    { testo:"📚 Enciclopedia", corretta:false }
                 ]
             },
 
             {
-                domanda:"Quale animale ha le zampe palmate e nuota bene?",
+                domanda:"Qual è la capitale d'Italia?",
                 opzioni:[
-                    { testo:"🦆 Anatra", corretta:true },
-                    { testo:"🐓 Gallo", corretta:false },
-                    { testo:"🦃 Tacchino", corretta:false }
+                    { testo:"🏛️ Roma", corretta:true },
+                    { testo:"🏙️ Milano", corretta:false },
+                    { testo:"🌋 Napoli", corretta:false }
                 ]
             },
 
             {
-                domanda:"Quale animale dorme tutto l'inverno?",
+                domanda:"Come si chiama chi scrive un libro?",
                 opzioni:[
-                    { testo:"🐻 Orso", corretta:true },
-                    { testo:"🦁 Leone", corretta:false },
-                    { testo:"🐴 Cavallo", corretta:false }
+                    { testo:"✍️ Autore", corretta:true },
+                    { testo:"🎭 Attore", corretta:false },
+                    { testo:"🏗️ Architetto", corretta:false }
                 ]
             }
 
