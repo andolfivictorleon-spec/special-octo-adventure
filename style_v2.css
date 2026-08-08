@@ -27,6 +27,83 @@ header {
 }
 
 
+#btnCambiaPersonaggio {
+
+    width:auto;
+
+    display:inline-block;
+
+    margin:10px auto 0;
+
+    padding:8px 16px;
+
+    font-size:14px;
+
+}
+
+
+
+#selezionePersonaggio {
+
+    background:white;
+
+    max-width:500px;
+
+    margin:30px auto;
+
+    padding:20px;
+
+    border-radius:20px;
+
+}
+
+
+#listaPersonaggi {
+
+    display:grid;
+
+    grid-template-columns: repeat(4, 1fr);
+
+    gap:14px;
+
+    margin-top:16px;
+
+}
+
+
+.opzionePersonaggio {
+
+    font-size:40px;
+
+    padding:14px 0;
+
+    border:3px solid transparent;
+
+    border-radius:16px;
+
+    background:#f3f3f3;
+
+    cursor:pointer;
+
+}
+
+
+.opzionePersonaggio:hover {
+
+    border-color:#ffd54f;
+
+    background:#fff7e0;
+
+}
+
+
+.nascosto {
+
+    display:none !important;
+
+}
+
+
 
 #city {
 
