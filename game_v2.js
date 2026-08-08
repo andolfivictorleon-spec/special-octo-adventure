@@ -179,14 +179,20 @@ function startQuiz(type){
 
 
 
+let opzioniMostrate = [];
+
+
+
 function renderDomandaSessione(){
 
     let edificio = buildings[edificioSessione];
     let domandaCorrente = domandeSessione[indiceSessione];
 
+    opzioniMostrate = mescola(domandaCorrente.opzioni);
+
     let bottoni = "";
 
-    domandaCorrente.opzioni.forEach(function(opzione, indice){
+    opzioniMostrate.forEach(function(opzione, indice){
 
         bottoni += `
         <button class="quizButton"
@@ -219,8 +225,7 @@ function renderDomandaSessione(){
 
 function rispondiSessione(indiceScelto){
 
-    let domandaCorrente = domandeSessione[indiceSessione];
-    let scelta = domandaCorrente.opzioni[indiceScelto];
+    let scelta = opzioniMostrate[indiceScelto];
 
     if(scelta.corretta){
         correttiSessione++;
