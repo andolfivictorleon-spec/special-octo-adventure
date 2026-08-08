@@ -375,3 +375,174 @@ loadGame();
 updateInfo();
 aggiornaBottoniEdifici();
 aggiornaAspettoEdifici();
+
+
+
+// ---------- Movimento del personaggio ----------
+
+const mappa = document.getElementById("city");
+const personaggio = document.getElementById("player");
+
+let posizioneX = 0;
+let posizioneY = 0;
+
+let vicinoAttuale = null;
+
+const PASSO = 28;
+const DISTANZA_INGRESSO = 75;
+
+
+
+function posizionaIniziale(){
+
+    posizioneX = (mappa.clientWidth / 2) - 20;
+    posizioneY = (mappa.clientHeight / 2) - 20;
+
+    aggiornaPosizionePersonaggio();
+
+}
+
+
+
+function aggiornaPosizionePersonaggio(){
+
+    personaggio.style.left = posizioneX + "px";
+    personaggio.style.top = posizioneY + "px";
+
+}
+
+
+
+function muovi(dx, dy){
+
+    let maxX = mappa.clientWidth - personaggio.offsetWidth;
+    let maxY = mappa.clientHeight - personaggio.offsetHeight;
+
+    posizioneX = Math.max(0, Math.min(maxX, posizioneX + dx));
+    posizioneY = Math.max(0, Math.min(maxY, posizioneY + dy));
+
+    aggiornaPosizionePersonaggio();
+
+    controllaVicinanza();
+
+}
+
+
+
+function controllaVicinanza(){
+
+    let centroGiocatoreX = posizioneX + (personaggio.offsetWidth / 2);
+    let centroGiocatoreY = posizioneY + (personaggio.offsetHeight / 2);
+
+    let trovato = null;
+
+    ordineEdifici.forEach(function(nome){
+
+        let bottone = document.getElementById("btn-" + nome);
+
+        if(!bottone){
+            return;
+        }
+
+        let centroEdificioX = bottone.offsetLeft + (bottone.offsetWidth / 2);
+        let centroEdificioY = bottone.offsetTop + (bottone.offsetHeight / 2);
+
+        let distanza = Math.hypot(centroGiocatoreX - centroEdificioX, centroGiocatoreY - centroEdificioY);
+
+        if(distanza <= DISTANZA_INGRESSO){
+            trovato = nome;
+        }
+
+    });
+
+    if(trovato && trovato !== vicinoAttuale){
+
+        vicinoAttuale = trovato;
+        openBuilding(trovato);
+
+    }
+
+    if(!trovato){
+
+        vicinoAttuale = null;
+
+    }
+
+}
+
+
+
+document.getElementById("btnSu").addEventListener("click", function(){ muovi(0, -PASSO); });
+document.getElementById("btnGiu").addEventListener("click", function(){ muovi(0, PASSO); });
+document.getElementById("btnSinistra").addEventListener("click", function(){ muovi(-PASSO, 0); });
+document.getElementById("btnDestra").addEventListener("click", function(){ muovi(PASSO, 0); });
+
+
+
+document.addEventListener("keydown", function(evento){
+
+    if(evento.key === "ArrowUp" || evento.key === "w" || evento.key === "W"){
+        muovi(0, -PASSO);
+    }
+
+    if(evento.key === "ArrowDown" || evento.key === "s" || evento.key === "S"){
+        muovi(0, PASSO);
+    }
+
+    if(evento.key === "ArrowLeft" || evento.key === "a" || evento.key === "A"){
+        muovi(-PASSO, 0);
+    }
+
+    if(evento.key === "ArrowRight" || evento.key === "d" || evento.key === "D"){
+        muovi(PASSO, 0);
+    }
+
+});
+
+
+
+// ---------- Scelta del personaggio ----------
+
+const schermataSelezione = document.getElementById("selezionePersonaggio");
+const sezioneCitta = document.getElementById("city");
+const sezioneControlli = document.getElementById("controls");
+
+
+
+function scegliPersonaggio(emoji){
+
+    localStorage.setItem("personaggioScelto", emoji);
+
+    personaggio.textContent = emoji;
+
+    schermataSelezione.classList.add("nascosto");
+    sezioneCitta.classList.remove("nascosto");
+    sezioneControlli.classList.remove("nascosto");
+
+    posizionaIniziale();
+
+}
+
+
+
+document.getElementById("btnCambiaPersonaggio").addEventListener("click", function(){
+
+    schermataSelezione.classList.remove("nascosto");
+    sezioneCitta.classList.add("nascosto");
+    sezioneControlli.classList.add("nascosto");
+
+});
+
+
+
+let personaggioSalvato = localStorage.getItem("personaggioScelto");
+
+if(personaggioSalvato){
+
+    scegliPersonaggio(personaggioSalvato);
+
+} else {
+
+    schermataSelezione.classList.remove("nascosto");
+
+}
