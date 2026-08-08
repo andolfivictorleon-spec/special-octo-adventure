@@ -104,6 +104,96 @@ const buildings = {
                     { testo:"🎭 Attore", corretta:false },
                     { testo:"🏗️ Architetto", corretta:false }
                 ]
+            },
+
+            {
+                domanda:"Qual è il pianeta più vicino al Sole?",
+                opzioni:[
+                    { testo:"☿️ Mercurio", corretta:true },
+                    { testo:"♀️ Venere", corretta:false },
+                    { testo:"♂️ Marte", corretta:false }
+                ]
+            },
+
+            {
+                domanda:"Qual è la lingua ufficiale del Regno Unito?",
+                opzioni:[
+                    { testo:"🇬🇧 Inglese", corretta:true },
+                    { testo:"🇫🇷 Francese", corretta:false },
+                    { testo:"🇩🇪 Tedesco", corretta:false }
+                ]
+            },
+
+            {
+                domanda:"Qual è l'oceano più grande del mondo?",
+                opzioni:[
+                    { testo:"🌊 Oceano Pacifico", corretta:true },
+                    { testo:"🌊 Oceano Atlantico", corretta:false },
+                    { testo:"🌊 Mar Mediterraneo", corretta:false }
+                ]
+            },
+
+            {
+                domanda:"Come si chiama la storia della propria vita scritta da sé stessi?",
+                opzioni:[
+                    { testo:"📔 Autobiografia", corretta:true },
+                    { testo:"🦊 Fiaba", corretta:false },
+                    { testo:"📖 Dizionario", corretta:false }
+                ]
+            },
+
+            {
+                domanda:"In quale città si trova la Torre Eiffel?",
+                opzioni:[
+                    { testo:"🗼 Parigi", corretta:true },
+                    { testo:"🏛️ Roma", corretta:false },
+                    { testo:"🎡 Londra", corretta:false }
+                ]
+            },
+
+            {
+                domanda:"Come si chiamano le lettere che formano le parole scritte?",
+                opzioni:[
+                    { testo:"🔤 Alfabeto", corretta:true },
+                    { testo:"🔢 Numeri", corretta:false },
+                    { testo:"🎵 Note musicali", corretta:false }
+                ]
+            },
+
+            {
+                domanda:"Qual è il monte più alto del mondo?",
+                opzioni:[
+                    { testo:"🏔️ Everest", corretta:true },
+                    { testo:"🏔️ Monte Bianco", corretta:false },
+                    { testo:"🌋 Vesuvio", corretta:false }
+                ]
+            },
+
+            {
+                domanda:"Come si chiama chi disegna le immagini di un libro?",
+                opzioni:[
+                    { testo:"🖍️ Illustratore", corretta:true },
+                    { testo:"📰 Editore", corretta:false },
+                    { testo:"✏️ Correttore", corretta:false }
+                ]
+            },
+
+            {
+                domanda:"In quale paese si trova la Grande Muraglia?",
+                opzioni:[
+                    { testo:"🇨🇳 Cina", corretta:true },
+                    { testo:"🇯🇵 Giappone", corretta:false },
+                    { testo:"🇮🇳 India", corretta:false }
+                ]
+            },
+
+            {
+                domanda:"Come si chiama la storia di vita di una persona scritta da un'altra persona?",
+                opzioni:[
+                    { testo:"📕 Biografia", corretta:true },
+                    { testo:"📔 Autobiografia", corretta:false },
+                    { testo:"🦊 Fiaba", corretta:false }
+                ]
             }
 
         ]
@@ -214,6 +304,96 @@ const buildings = {
                     { testo:"🧑‍🤝‍🧑 Cittadini", corretta:true },
                     { testo:"🐾 Animali", corretta:false },
                     { testo:"✈️ Solo turisti", corretta:false }
+                ]
+            },
+
+            {
+                domanda:"Chi decide le leggi nazionali in Italia?",
+                opzioni:[
+                    { testo:"🏛️ Il Parlamento", corretta:true },
+                    { testo:"🎒 Il Preside", corretta:false },
+                    { testo:"🏫 Il Sindaco", corretta:false }
+                ]
+            },
+
+            {
+                domanda:"Come si chiama il documento che serve per guidare un'automobile?",
+                opzioni:[
+                    { testo:"🚗 Patente", corretta:true },
+                    { testo:"📄 Pagella", corretta:false },
+                    { testo:"🛂 Passaporto", corretta:false }
+                ]
+            },
+
+            {
+                domanda:"A cosa servono le tasse pagate dai cittadini?",
+                opzioni:[
+                    { testo:"🏫 A pagare scuole, strade e servizi pubblici", corretta:true },
+                    { testo:"🎁 A comprare regali", corretta:false },
+                    { testo:"❌ A niente", corretta:false }
+                ]
+            },
+
+            {
+                domanda:"Chi rappresenta l'Italia nel mondo come capo dello Stato?",
+                opzioni:[
+                    { testo:"🎖️ Il Presidente della Repubblica", corretta:true },
+                    { testo:"🏛️ Il Sindaco", corretta:false },
+                    { testo:"🎓 Il Maestro", corretta:false }
+                ]
+            },
+
+            {
+                domanda:"Cosa si festeggia il 2 giugno in Italia?",
+                opzioni:[
+                    { testo:"🇮🇹 La Festa della Repubblica", corretta:true },
+                    { testo:"🎄 Il Natale", corretta:false },
+                    { testo:"🏖️ Ferragosto", corretta:false }
+                ]
+            },
+
+            {
+                domanda:"Come si chiama il luogo dove i cittadini vanno a votare?",
+                opzioni:[
+                    { testo:"🗳️ Seggio elettorale", corretta:true },
+                    { testo:"📚 Biblioteca", corretta:false },
+                    { testo:"🏟️ Stadio", corretta:false }
+                ]
+            },
+
+            {
+                domanda:"Chi si occupa di spegnere gli incendi?",
+                opzioni:[
+                    { testo:"🚒 I vigili del fuoco", corretta:true },
+                    { testo:"🚦 I vigili urbani", corretta:false },
+                    { testo:"🩺 I dottori", corretta:false }
+                ]
+            },
+
+            {
+                domanda:"Come si chiama la raccolta differenziata dei rifiuti?",
+                opzioni:[
+                    { testo:"♻️ Riciclo", corretta:true },
+                    { testo:"🔥 Bruciare tutto insieme", corretta:false },
+                    { testo:"🗑️ Sprecare", corretta:false }
+                ]
+            },
+
+            {
+                domanda:"Come si chiama la bandiera italiana, con i tre colori verde, bianco e rosso?",
+                opzioni:[
+                    { testo:"🇮🇹 Tricolore", corretta:true },
+                    { testo:"🏳️ Bicolore", corretta:false },
+                    { testo:"🚩 Stendardo", corretta:false }
+                ]
+            },
+
+            {
+                domanda:"Chi si occupa di aiutare i cittadini in caso di pericolo o reato?",
+                opzioni:[
+                    { testo:"👮 La polizia", corretta:true },
+                    { testo:"📮 Il postino", corretta:false },
+                    { testo:"🔧 L'idraulico", corretta:false }
                 ]
             }
 
@@ -326,6 +506,96 @@ const buildings = {
                     { testo:"🔭 Il telescopio", corretta:false },
                     { testo:"📷 La macchina fotografica", corretta:false }
                 ]
+            },
+
+            {
+                domanda:"Come si chiama la forza che ci tiene attaccati a terra?",
+                opzioni:[
+                    { testo:"🌍 Gravità", corretta:true },
+                    { testo:"⚡ Elettricità", corretta:false },
+                    { testo:"🧲 Magnetismo", corretta:false }
+                ]
+            },
+
+            {
+                domanda:"Quale organo del corpo usiamo per vedere?",
+                opzioni:[
+                    { testo:"👀 Gli occhi", corretta:true },
+                    { testo:"👂 Le orecchie", corretta:false },
+                    { testo:"👃 Il naso", corretta:false }
+                ]
+            },
+
+            {
+                domanda:"Come si chiama lo strumento per misurare la temperatura?",
+                opzioni:[
+                    { testo:"🌡️ Termometro", corretta:true },
+                    { testo:"📏 Righello", corretta:false },
+                    { testo:"⚖️ Bilancia", corretta:false }
+                ]
+            },
+
+            {
+                domanda:"Quale di questi animali NON è un insetto?",
+                opzioni:[
+                    { testo:"🕷️ Il ragno", corretta:true },
+                    { testo:"🐜 La formica", corretta:false },
+                    { testo:"🦋 La farfalla", corretta:false }
+                ]
+            },
+
+            {
+                domanda:"Come si chiama il passaggio dell'acqua da liquido a vapore?",
+                opzioni:[
+                    { testo:"💨 Evaporazione", corretta:true },
+                    { testo:"🧊 Solidificazione", corretta:false },
+                    { testo:"💧 Condensazione", corretta:false }
+                ]
+            },
+
+            {
+                domanda:"Quale pianeta è conosciuto come il Pianeta Rosso?",
+                opzioni:[
+                    { testo:"🔴 Marte", corretta:true },
+                    { testo:"♀️ Venere", corretta:false },
+                    { testo:"🪐 Giove", corretta:false }
+                ]
+            },
+
+            {
+                domanda:"Qual è la più piccola unità che compone tutti gli esseri viventi?",
+                opzioni:[
+                    { testo:"🔬 La cellula", corretta:true },
+                    { testo:"⚛️ L'atomo", corretta:false },
+                    { testo:"💧 La molecola", corretta:false }
+                ]
+            },
+
+            {
+                domanda:"Cosa produce l'energia in una pala eolica?",
+                opzioni:[
+                    { testo:"💨 Il vento", corretta:true },
+                    { testo:"☀️ Il sole", corretta:false },
+                    { testo:"💧 L'acqua", corretta:false }
+                ]
+            },
+
+            {
+                domanda:"Quante zampe ha di solito un insetto?",
+                opzioni:[
+                    { testo:"6️⃣ 6", corretta:true },
+                    { testo:"4️⃣ 4", corretta:false },
+                    { testo:"8️⃣ 8", corretta:false }
+                ]
+            },
+
+            {
+                domanda:"Come si chiama lo strumento che serve per pesare gli oggetti?",
+                opzioni:[
+                    { testo:"⚖️ Bilancia", corretta:true },
+                    { testo:"🌡️ Termometro", corretta:false },
+                    { testo:"📏 Righello", corretta:false }
+                ]
             }
 
         ]
@@ -436,6 +706,96 @@ const buildings = {
                     { testo:"🎨 Colori secondari", corretta:true },
                     { testo:"👻 Colori invisibili", corretta:false },
                     { testo:"❓ Colori senza nome", corretta:false }
+                ]
+            },
+
+            {
+                domanda:"Come si chiama un dipinto molto grande fatto direttamente su un muro?",
+                opzioni:[
+                    { testo:"🖼️ Murale", corretta:true },
+                    { testo:"🖼️ Ritratto", corretta:false },
+                    { testo:"🖼️ Miniatura", corretta:false }
+                ]
+            },
+
+            {
+                domanda:"Quale arte usa il corpo per esprimersi a ritmo di musica?",
+                opzioni:[
+                    { testo:"💃 La danza", corretta:true },
+                    { testo:"🗿 La scultura", corretta:false },
+                    { testo:"🖌️ La pittura", corretta:false }
+                ]
+            },
+
+            {
+                domanda:"Come si chiama l'edificio dove si vanno a vedere spettacoli teatrali?",
+                opzioni:[
+                    { testo:"🎭 Teatro", corretta:true },
+                    { testo:"🏛️ Museo", corretta:false },
+                    { testo:"📚 Biblioteca", corretta:false }
+                ]
+            },
+
+            {
+                domanda:"Di che materiale sono fatte molte statue antiche famose?",
+                opzioni:[
+                    { testo:"🗿 Marmo", corretta:true },
+                    { testo:"🧸 Plastica", corretta:false },
+                    { testo:"📦 Cartone", corretta:false }
+                ]
+            },
+
+            {
+                domanda:"Come si chiama l'arte di progettare edifici e spazi?",
+                opzioni:[
+                    { testo:"🏗️ Architettura", corretta:true },
+                    { testo:"📸 Fotografia", corretta:false },
+                    { testo:"🎵 Musica", corretta:false }
+                ]
+            },
+
+            {
+                domanda:"Quale colore si ottiene mescolando il giallo e il blu?",
+                opzioni:[
+                    { testo:"🟢 Verde", corretta:true },
+                    { testo:"🟠 Arancione", corretta:false },
+                    { testo:"🟣 Viola", corretta:false }
+                ]
+            },
+
+            {
+                domanda:"Chi ha dipinto il famoso quadro \"Notte stellata\"?",
+                opzioni:[
+                    { testo:"🎨 Vincent van Gogh", corretta:true },
+                    { testo:"🎨 Claude Monet", corretta:false },
+                    { testo:"🎨 Pablo Picasso", corretta:false }
+                ]
+            },
+
+            {
+                domanda:"Come si chiama l'arte di scattare immagini con una macchina fotografica?",
+                opzioni:[
+                    { testo:"📷 Fotografia", corretta:true },
+                    { testo:"🎬 Cinematografia", corretta:false },
+                    { testo:"🖌️ Pittura", corretta:false }
+                ]
+            },
+
+            {
+                domanda:"In quale famoso museo di Parigi si trova la Gioconda?",
+                opzioni:[
+                    { testo:"🏛️ Il Louvre", corretta:true },
+                    { testo:"🏛️ Il Prado", corretta:false },
+                    { testo:"🏛️ Gli Uffizi", corretta:false }
+                ]
+            },
+
+            {
+                domanda:"Quale colore si ottiene mescolando il rosso e il giallo?",
+                opzioni:[
+                    { testo:"🟠 Arancione", corretta:true },
+                    { testo:"🟢 Verde", corretta:false },
+                    { testo:"🟣 Viola", corretta:false }
                 ]
             }
 
