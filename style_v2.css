@@ -241,3 +241,190 @@ header {
     font-size:50px;
 
 }
+
+
+/* ---------- Sala Giochi (Arcade) ---------- */
+
+.arcadeOpzione {
+
+    display:block;
+
+    width:90%;
+
+    margin:10px auto;
+
+    padding:16px;
+
+    font-size:17px;
+
+    border-radius:15px;
+
+    border:none;
+
+    background:#6c3fc5;
+
+    color:white;
+
+    cursor:pointer;
+
+}
+
+
+.arcadeRecord {
+
+    font-size:13px;
+
+    opacity:0.85;
+
+    display:block;
+
+    margin-top:4px;
+
+}
+
+
+/* Acchiappa la talpa */
+
+.talpaGriglia {
+
+    display:grid;
+
+    grid-template-columns:repeat(3, 1fr);
+
+    gap:10px;
+
+    max-width:300px;
+
+    margin:16px auto;
+
+}
+
+
+.talpaBuca {
+
+    aspect-ratio:1;
+
+    border-radius:50%;
+
+    border:none;
+
+    background:#5b3a29;
+
+    font-size:32px;
+
+    cursor:pointer;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+}
+
+
+.talpaBuca.attiva {
+
+    background:#8d6e4a;
+
+}
+
+
+/* Memoria */
+
+.memoriaGriglia {
+
+    display:grid;
+
+    grid-template-columns:repeat(4, 1fr);
+
+    gap:8px;
+
+    max-width:320px;
+
+    margin:16px auto;
+
+}
+
+
+.memoriaCarta {
+
+    aspect-ratio:1;
+
+    border-radius:10px;
+
+    border:none;
+
+    background:#6c3fc5;
+
+    font-size:26px;
+
+    cursor:pointer;
+
+    color:white;
+
+}
+
+
+.memoriaCarta.girata,
+.memoriaCarta.trovata {
+
+    background:#fff;
+
+    color:#000;
+
+}
+
+
+.memoriaCarta.trovata {
+
+    opacity:0.55;
+
+}
+
+
+/* Sequenza Colori (Simon) */
+
+.simonGriglia {
+
+    display:grid;
+
+    grid-template-columns:repeat(2, 1fr);
+
+    gap:10px;
+
+    max-width:220px;
+
+    margin:16px auto;
+
+}
+
+
+.simonBottone {
+
+    aspect-ratio:1;
+
+    border-radius:16px;
+
+    border:none;
+
+    cursor:pointer;
+
+    opacity:0.65;
+
+}
+
+
+.simonBottone.acceso {
+
+    opacity:1;
+
+    box-shadow:0 0 20px white;
+
+}
+
+
+.simon-rosso { background:#e74c3c; }
+.simon-blu { background:#3498db; }
+.simon-verde { background:#2ecc71; }
+.simon-giallo { background:#f1c40f; }
