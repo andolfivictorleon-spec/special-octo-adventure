@@ -670,23 +670,47 @@ function applicaBagliore(gruppo, livello){
 
     if(livello === "Oro"){
 
+        let contenitore = new THREE.Group();
+        contenitore.position.y = 2.3;
+        contenitore.userData.baseY = 2.3;
+
         let stella = new THREE.Mesh(
-            new THREE.OctahedronGeometry(0.16, 0),
+            new THREE.OctahedronGeometry(0.38, 0),
             new THREE.MeshBasicMaterial({ color: 0xffd700 })
         );
-        stella.position.y = 2.05;
-        gruppo.add(stella);
-        gruppo.userData.indicatore = stella;
+        contenitore.add(stella);
+
+        let anello = new THREE.Mesh(
+            new THREE.TorusGeometry(0.32, 0.05, 8, 16),
+            new THREE.MeshBasicMaterial({ color: 0xfff3b0 })
+        );
+        anello.rotation.x = Math.PI / 2;
+        contenitore.add(anello);
+
+        gruppo.add(contenitore);
+        gruppo.userData.indicatore = contenitore;
 
     } else if(livello === "Diamante"){
 
+        let contenitore = new THREE.Group();
+        contenitore.position.y = 2.4;
+        contenitore.userData.baseY = 2.4;
+
         let gemma = new THREE.Mesh(
-            new THREE.OctahedronGeometry(0.2, 0),
-            new THREE.MeshBasicMaterial({ color: 0x66e0ff })
+            new THREE.OctahedronGeometry(0.46, 0),
+            new THREE.MeshBasicMaterial({ color: 0x4fd8ff })
         );
-        gemma.position.y = 2.1;
-        gruppo.add(gemma);
-        gruppo.userData.indicatore = gemma;
+        contenitore.add(gemma);
+
+        let anello = new THREE.Mesh(
+            new THREE.TorusGeometry(0.4, 0.05, 8, 16),
+            new THREE.MeshBasicMaterial({ color: 0xd7f7ff })
+        );
+        anello.rotation.x = Math.PI / 2;
+        contenitore.add(anello);
+
+        gruppo.add(contenitore);
+        gruppo.userData.indicatore = contenitore;
 
     }
 
@@ -874,11 +898,15 @@ function animaScena3D(){
     ordineEdifici.forEach(function(nome){
 
         if(edificiMesh[nome] && edificiMesh[nome].userData.indicatore){
-            edificiMesh[nome].userData.indicatore.rotation.y += 0.04;
+            let indicatore = edificiMesh[nome].userData.indicatore;
+            indicatore.rotation.y += 0.05;
+            indicatore.position.y = indicatore.userData.baseY + Math.sin(orologioAnimazione * 1.3) * 0.15;
         }
 
         if(edificiMeshDuplicato[nome] && edificiMeshDuplicato[nome].userData.indicatore){
-            edificiMeshDuplicato[nome].userData.indicatore.rotation.y += 0.04;
+            let indicatoreDup = edificiMeshDuplicato[nome].userData.indicatore;
+            indicatoreDup.rotation.y += 0.05;
+            indicatoreDup.position.y = indicatoreDup.userData.baseY + Math.sin(orologioAnimazione * 1.3) * 0.15;
         }
 
     });
@@ -975,29 +1003,112 @@ function controllaVicinanza(){
 
 
 
-document.getElementById("btnSu").addEventListener("click", function(){ muovi(0, -PASSO); });
-document.getElementById("btnGiu").addEventListener("click", function(){ muovi(0, PASSO); });
-document.getElementById("btnSinistra").addEventListener("click", function(){ muovi(-PASSO, 0); });
-document.getElementById("btnDestra").addEventListener("click", function(){ muovi(PASSO, 0); });
+// Tenendo premuto un bottone o un tasto, il personaggio continua a camminare
+// finché non lo si rilascia.
+
+let intervalloMovimento = null;
+let direzioneAttiva = null;
+const PAUSA_TRA_PASSI = 130; // millisecondi tra un passo e l'altro mentre si tiene premuto
+
+
+
+function iniziaMovimentoContinuo(nomeDirezione, dx, dz){
+
+    if(direzioneAttiva === nomeDirezione){
+        return; // già in movimento in questa direzione
+    }
+
+    fermaMovimentoContinuo();
+
+    direzioneAttiva = nomeDirezione;
+
+    muovi(dx, dz); // primo passo subito, per rispondere anche a un tocco veloce
+
+    intervalloMovimento = setInterval(function(){
+        muovi(dx, dz);
+    }, PAUSA_TRA_PASSI);
+
+}
+
+
+
+function fermaMovimentoContinuo(){
+
+    if(intervalloMovimento){
+        clearInterval(intervalloMovimento);
+        intervalloMovimento = null;
+    }
+
+    direzioneAttiva = null;
+
+}
+
+
+
+function collegaBottoneDirezione(idBottone, nomeDirezione, dx, dz){
+
+    let bottone = document.getElementById(idBottone);
+
+    bottone.addEventListener("pointerdown", function(evento){
+        evento.preventDefault();
+        iniziaMovimentoContinuo(nomeDirezione, dx, dz);
+    });
+
+    bottone.addEventListener("pointerup", fermaMovimentoContinuo);
+    bottone.addEventListener("pointerleave", fermaMovimentoContinuo);
+    bottone.addEventListener("pointercancel", fermaMovimentoContinuo);
+
+}
+
+collegaBottoneDirezione("btnSu", "su", 0, -PASSO);
+collegaBottoneDirezione("btnGiu", "giu", 0, PASSO);
+collegaBottoneDirezione("btnSinistra", "sinistra", -PASSO, 0);
+collegaBottoneDirezione("btnDestra", "destra", PASSO, 0);
+
+
+
+function direzioneDaTasto(tasto){
+
+    if(tasto === "ArrowUp" || tasto === "w" || tasto === "W"){
+        return { nome:"su", dx:0, dz:-PASSO };
+    }
+
+    if(tasto === "ArrowDown" || tasto === "s" || tasto === "S"){
+        return { nome:"giu", dx:0, dz:PASSO };
+    }
+
+    if(tasto === "ArrowLeft" || tasto === "a" || tasto === "A"){
+        return { nome:"sinistra", dx:-PASSO, dz:0 };
+    }
+
+    if(tasto === "ArrowRight" || tasto === "d" || tasto === "D"){
+        return { nome:"destra", dx:PASSO, dz:0 };
+    }
+
+    return null;
+
+}
 
 
 
 document.addEventListener("keydown", function(evento){
 
-    if(evento.key === "ArrowUp" || evento.key === "w" || evento.key === "W"){
-        muovi(0, -PASSO);
+    let direzione = direzioneDaTasto(evento.key);
+
+    if(direzione){
+        iniziaMovimentoContinuo(direzione.nome, direzione.dx, direzione.dz);
     }
 
-    if(evento.key === "ArrowDown" || evento.key === "s" || evento.key === "S"){
-        muovi(0, PASSO);
-    }
+});
 
-    if(evento.key === "ArrowLeft" || evento.key === "a" || evento.key === "A"){
-        muovi(-PASSO, 0);
-    }
 
-    if(evento.key === "ArrowRight" || evento.key === "d" || evento.key === "D"){
-        muovi(PASSO, 0);
+
+document.addEventListener("keyup", function(evento){
+
+    let direzione = direzioneDaTasto(evento.key);
+
+    if(direzione && direzione.nome === direzioneAttiva){
+        fermaMovimentoContinuo();
     }
 
 });
