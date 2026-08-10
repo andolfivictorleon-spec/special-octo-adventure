@@ -630,6 +630,79 @@ ordineEdifici.forEach(function(nome){
 
 
 
+// ---------- La macchinetta arcade (sempre sbloccata, al centro della città) ----------
+
+const posizioneArcade = { x: 0, z: 0 };
+
+
+
+function creaArcade(){
+
+    let gruppo = new THREE.Group();
+
+    let mobile = new THREE.Mesh(
+        new THREE.BoxGeometry(0.7, 1.5, 0.55),
+        new THREE.MeshStandardMaterial({ color: 0x2c3e50 })
+    );
+    mobile.position.y = 0.75;
+    gruppo.add(mobile);
+
+    let schermo = new THREE.Mesh(
+        new THREE.BoxGeometry(0.5, 0.4, 0.08),
+        new THREE.MeshStandardMaterial({ color: 0x1a1a2e })
+    );
+    schermo.position.set(0, 1.15, 0.29);
+    gruppo.add(schermo);
+
+    let bagliore = new THREE.Mesh(
+        new THREE.BoxGeometry(0.4, 0.3, 0.02),
+        new THREE.MeshBasicMaterial({ color: 0x8be9fd })
+    );
+    bagliore.position.set(0, 1.15, 0.34);
+    gruppo.add(bagliore);
+
+    let base = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.05, 0.05, 0.15, 8),
+        new THREE.MeshStandardMaterial({ color: 0x34495e })
+    );
+    base.position.set(0, 0.7, 0.2);
+    gruppo.add(base);
+
+    let pallina = new THREE.Mesh(
+        new THREE.SphereGeometry(0.07, 10, 10),
+        new THREE.MeshStandardMaterial({ color: 0xe74c3c })
+    );
+    pallina.position.set(0, 0.8, 0.2);
+    gruppo.add(pallina);
+
+    let bottone1 = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.05, 0.05, 0.04, 10),
+        new THREE.MeshStandardMaterial({ color: 0xe74c3c })
+    );
+    bottone1.position.set(0.18, 0.72, 0.24);
+    gruppo.add(bottone1);
+
+    let bottone2 = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.05, 0.05, 0.04, 10),
+        new THREE.MeshStandardMaterial({ color: 0xf1c40f })
+    );
+    bottone2.position.set(0.3, 0.72, 0.24);
+    gruppo.add(bottone2);
+
+    return gruppo;
+
+}
+
+
+
+const arcadeMesh = creaArcade();
+arcadeMesh.position.set(posizioneArcade.x, 0, posizioneArcade.z);
+scena3D.add(arcadeMesh);
+
+let vicinoArcade = false;
+
+
+
 function aggiornaBottoniEdifici(){
 
     // Il "blocco" si vede colorando l'edificio di grigio; la logica di ingresso resta in edificioSbloccato().
@@ -999,6 +1072,22 @@ function controllaVicinanza(){
 
     }
 
+
+    let distanzaArcade = Math.hypot(posizioneX - posizioneArcade.x, posizioneZ - posizioneArcade.z);
+
+    if(distanzaArcade <= DISTANZA_INGRESSO && !vicinoArcade){
+
+        vicinoArcade = true;
+        apriArcade();
+
+    }
+
+    if(distanzaArcade > DISTANZA_INGRESSO){
+
+        vicinoArcade = false;
+
+    }
+
 }
 
 
@@ -1164,5 +1253,480 @@ if(personaggioSalvato){
 } else {
 
     schermataSelezione.classList.remove("nascosto");
+
+}
+
+
+
+// ---------- Sala Giochi: menù principale ----------
+
+function apriArcade(){
+
+    let recordTalpa = parseInt(localStorage.getItem("arcade_talpa_record")) || 0;
+    let recordMemoria = parseInt(localStorage.getItem("arcade_memoria_record")) || 0;
+    let recordSimon = parseInt(localStorage.getItem("arcade_simon_record")) || 0;
+
+    panel.innerHTML = `
+
+    <h2>🕹️ Sala Giochi</h2>
+
+    <p>Scegli un minigioco!</p>
+
+    <button class="arcadeOpzione" onclick="avviaTalpa()">
+        🐹 Acchiappa la Talpa
+        <span class="arcadeRecord">Record: ${recordTalpa}</span>
+    </button>
+
+    <button class="arcadeOpzione" onclick="avviaMemoria()">
+        🧠 Memoria
+        <span class="arcadeRecord">${recordMemoria > 0 ? "Record: " + recordMemoria + " mosse" : "Nessun record ancora"}</span>
+    </button>
+
+    <button class="arcadeOpzione" onclick="avviaSimon()">
+        🎨 Sequenza Colori
+        <span class="arcadeRecord">Record: round ${recordSimon}</span>
+    </button>
+
+    `;
+
+}
+
+
+
+// ---------- Minigioco 1: Acchiappa la Talpa ----------
+
+let talpaPunteggio = 0;
+let talpaTempoRimasto = 20;
+let talpaBucaAttiva = -1;
+let talpaTimerId = null;
+let talpaSpawnTimeoutId = null;
+let talpaNascondiTimeoutId = null;
+
+
+
+function avviaTalpa(){
+
+    talpaPunteggio = 0;
+    talpaTempoRimasto = 20;
+    talpaBucaAttiva = -1;
+
+    renderTalpa();
+
+    talpaTimerId = setInterval(function(){
+
+        talpaTempoRimasto--;
+
+        if(talpaTempoRimasto <= 0){
+            fineTalpa();
+        } else {
+            renderTalpa();
+        }
+
+    }, 1000);
+
+    spawnTalpa();
+
+}
+
+
+
+function spawnTalpa(){
+
+    talpaBucaAttiva = Math.floor(Math.random() * 9);
+
+    renderTalpa();
+
+    talpaNascondiTimeoutId = setTimeout(function(){
+
+        talpaBucaAttiva = -1;
+        renderTalpa();
+
+        talpaSpawnTimeoutId = setTimeout(spawnTalpa, 250);
+
+    }, 750);
+
+}
+
+
+
+function toccaTalpa(indice){
+
+    if(indice !== talpaBucaAttiva){
+        return;
+    }
+
+    talpaPunteggio++;
+    talpaBucaAttiva = -1;
+
+    clearTimeout(talpaNascondiTimeoutId);
+    clearTimeout(talpaSpawnTimeoutId);
+
+    renderTalpa();
+
+    talpaSpawnTimeoutId = setTimeout(spawnTalpa, 200);
+
+}
+
+
+
+function renderTalpa(){
+
+    let griglia = "";
+
+    for(let i = 0; i < 9; i++){
+
+        griglia += `<button class="talpaBuca ${i === talpaBucaAttiva ? "attiva" : ""}" onclick="toccaTalpa(${i})">${i === talpaBucaAttiva ? "🐹" : ""}</button>`;
+
+    }
+
+    panel.innerHTML = `
+
+    <h2>🐹 Acchiappa la Talpa</h2>
+
+    <p>Punteggio: ${talpaPunteggio} — Tempo: ${talpaTempoRimasto}s</p>
+
+    <div class="talpaGriglia">${griglia}</div>
+
+    `;
+
+}
+
+
+
+function fineTalpa(){
+
+    clearInterval(talpaTimerId);
+    clearTimeout(talpaNascondiTimeoutId);
+    clearTimeout(talpaSpawnTimeoutId);
+
+    let record = parseInt(localStorage.getItem("arcade_talpa_record")) || 0;
+    let nuovoRecord = talpaPunteggio > record;
+
+    if(nuovoRecord){
+        localStorage.setItem("arcade_talpa_record", talpaPunteggio);
+        record = talpaPunteggio;
+    }
+
+    panel.innerHTML = `
+
+    <h2>⏰ Tempo scaduto!</h2>
+
+    <p>Punteggio: ${talpaPunteggio}</p>
+
+    ${nuovoRecord ? "<p>🎉 Nuovo record!</p>" : `<p>Record: ${record}</p>`}
+
+    <button class="quizButton" onclick="avviaTalpa()">Rigioca</button>
+
+    <button class="quizButton" onclick="apriArcade()">Torna alla Sala Giochi</button>
+
+    `;
+
+}
+
+
+
+// ---------- Minigioco 2: Memoria ----------
+
+let memoriaCarte = [];
+let memoriaSelezionate = [];
+let memoriaMosse = 0;
+let memoriaBloccato = false;
+
+
+
+function avviaMemoria(){
+
+    let simboli = ["🐶", "🐱", "🐵", "🐸", "🦊", "🐼"];
+    let mazzo = mescola(simboli.concat(simboli));
+
+    memoriaCarte = mazzo.map(function(simbolo){
+        return { simbolo:simbolo, girata:false, trovata:false };
+    });
+
+    memoriaSelezionate = [];
+    memoriaMosse = 0;
+    memoriaBloccato = false;
+
+    renderMemoria();
+
+}
+
+
+
+function renderMemoria(){
+
+    let griglia = "";
+
+    memoriaCarte.forEach(function(carta, indice){
+
+        let classe = carta.trovata ? "trovata" : (carta.girata ? "girata" : "");
+        let contenuto = (carta.trovata || carta.girata) ? carta.simbolo : "❓";
+
+        griglia += `<button class="memoriaCarta ${classe}" onclick="giraCarta(${indice})">${contenuto}</button>`;
+
+    });
+
+    panel.innerHTML = `
+
+    <h2>🧠 Memoria</h2>
+
+    <p>Mosse: ${memoriaMosse}</p>
+
+    <div class="memoriaGriglia">${griglia}</div>
+
+    `;
+
+}
+
+
+
+function giraCarta(indice){
+
+    if(memoriaBloccato){
+        return;
+    }
+
+    let carta = memoriaCarte[indice];
+
+    if(carta.girata || carta.trovata || memoriaSelezionate.length >= 2){
+        return;
+    }
+
+    carta.girata = true;
+    memoriaSelezionate.push(indice);
+
+    renderMemoria();
+
+    if(memoriaSelezionate.length === 2){
+
+        memoriaMosse++;
+
+        let indice1 = memoriaSelezionate[0];
+        let indice2 = memoriaSelezionate[1];
+
+        if(memoriaCarte[indice1].simbolo === memoriaCarte[indice2].simbolo){
+
+            memoriaCarte[indice1].trovata = true;
+            memoriaCarte[indice2].trovata = true;
+            memoriaSelezionate = [];
+
+            renderMemoria();
+
+            if(memoriaCarte.every(function(c){ return c.trovata; })){
+                setTimeout(fineMemoria, 400);
+            }
+
+        } else {
+
+            memoriaBloccato = true;
+
+            setTimeout(function(){
+
+                memoriaCarte[indice1].girata = false;
+                memoriaCarte[indice2].girata = false;
+                memoriaSelezionate = [];
+                memoriaBloccato = false;
+
+                renderMemoria();
+
+            }, 800);
+
+        }
+
+    }
+
+}
+
+
+
+function fineMemoria(){
+
+    let record = parseInt(localStorage.getItem("arcade_memoria_record")) || 0;
+    let nuovoRecord = (record === 0) || (memoriaMosse < record);
+
+    if(nuovoRecord){
+        localStorage.setItem("arcade_memoria_record", memoriaMosse);
+        record = memoriaMosse;
+    }
+
+    panel.innerHTML = `
+
+    <h2>🎉 Hai trovato tutte le coppie!</h2>
+
+    <p>Mosse impiegate: ${memoriaMosse}</p>
+
+    ${nuovoRecord ? "<p>🏆 Nuovo record!</p>" : `<p>Record: ${record} mosse</p>`}
+
+    <button class="quizButton" onclick="avviaMemoria()">Rigioca</button>
+
+    <button class="quizButton" onclick="apriArcade()">Torna alla Sala Giochi</button>
+
+    `;
+
+}
+
+
+
+// ---------- Minigioco 3: Sequenza Colori (Simon) ----------
+
+const coloriSimon = ["rosso", "blu", "verde", "giallo"];
+
+let simonSequenza = [];
+let simonPassoGiocatore = 0;
+let simonPuoGiocare = false;
+
+
+
+function avviaSimon(){
+
+    simonSequenza = [];
+    simonPassoGiocatore = 0;
+    simonPuoGiocare = false;
+
+    renderSimon("Preparati...");
+
+    setTimeout(prossimoRoundSimon, 600);
+
+}
+
+
+
+function renderSimon(informazione){
+
+    let bottoni = coloriSimon.map(function(colore){
+        return `<button class="simonBottone simon-${colore}" id="simon-${colore}" onclick="toccaSimon('${colore}')"></button>`;
+    }).join("");
+
+    panel.innerHTML = `
+
+    <h2>🎨 Sequenza Colori</h2>
+
+    <p>${informazione || ("Round: " + simonSequenza.length)}</p>
+
+    <div class="simonGriglia">${bottoni}</div>
+
+    `;
+
+}
+
+
+
+function prossimoRoundSimon(){
+
+    simonSequenza.push(coloriSimon[Math.floor(Math.random() * 4)]);
+    simonPassoGiocatore = 0;
+
+    renderSimon("Guarda bene...");
+
+    mostraSequenzaSimon(0);
+
+}
+
+
+
+function mostraSequenzaSimon(indice){
+
+    if(indice >= simonSequenza.length){
+
+        simonPuoGiocare = true;
+        renderSimon("Tocca a te!");
+
+        return;
+
+    }
+
+    let colore = simonSequenza[indice];
+
+    setTimeout(function(){
+
+        let bottone = document.getElementById("simon-" + colore);
+
+        if(bottone){
+            bottone.classList.add("acceso");
+        }
+
+        setTimeout(function(){
+
+            let bottoneAttuale = document.getElementById("simon-" + colore);
+
+            if(bottoneAttuale){
+                bottoneAttuale.classList.remove("acceso");
+            }
+
+            mostraSequenzaSimon(indice + 1);
+
+        }, 450);
+
+    }, 350);
+
+}
+
+
+
+function toccaSimon(colore){
+
+    if(!simonPuoGiocare){
+        return;
+    }
+
+    let bottone = document.getElementById("simon-" + colore);
+
+    if(bottone){
+
+        bottone.classList.add("acceso");
+
+        setTimeout(function(){
+            bottone.classList.remove("acceso");
+        }, 200);
+
+    }
+
+    if(colore === simonSequenza[simonPassoGiocatore]){
+
+        simonPassoGiocatore++;
+
+        if(simonPassoGiocatore === simonSequenza.length){
+
+            simonPuoGiocare = false;
+
+            setTimeout(prossimoRoundSimon, 700);
+
+        }
+
+    } else {
+
+        fineSimon();
+
+    }
+
+}
+
+
+
+function fineSimon(){
+
+    let roundCompletati = simonSequenza.length - 1;
+
+    let record = parseInt(localStorage.getItem("arcade_simon_record")) || 0;
+    let nuovoRecord = roundCompletati > record;
+
+    if(nuovoRecord){
+        localStorage.setItem("arcade_simon_record", roundCompletati);
+        record = roundCompletati;
+    }
+
+    panel.innerHTML = `
+
+    <h2>❌ Sequenza sbagliata!</h2>
+
+    <p>Round completati: ${roundCompletati}</p>
+
+    ${nuovoRecord ? "<p>🏆 Nuovo record!</p>" : `<p>Record: ${record}</p>`}
+
+    <button class="quizButton" onclick="avviaSimon()">Rigioca</button>
+
+    <button class="quizButton" onclick="apriArcade()">Torna alla Sala Giochi</button>
+
+    `;
 
 }
