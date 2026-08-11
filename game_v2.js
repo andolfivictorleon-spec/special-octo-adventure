@@ -1265,6 +1265,13 @@ function apriArcade(){
     let recordTalpa = parseInt(localStorage.getItem("arcade_talpa_record")) || 0;
     let recordMemoria = parseInt(localStorage.getItem("arcade_memoria_record")) || 0;
     let recordSimon = parseInt(localStorage.getItem("arcade_simon_record")) || 0;
+    let recordNumero = parseInt(localStorage.getItem("arcade_numero_record")) || 0;
+    let recordTris = parseInt(localStorage.getItem("arcade_tris_vittorie")) || 0;
+    let recordSerpente = parseInt(localStorage.getItem("arcade_serpente_record")) || 0;
+    let recordReazione = parseInt(localStorage.getItem("arcade_reazione_record")) || 0;
+    let recordBandiera = parseInt(localStorage.getItem("arcade_bandiera_record")) || 0;
+    let recordImpiccato = parseInt(localStorage.getItem("arcade_impiccato_vittorie")) || 0;
+    let recordPuzzle = parseInt(localStorage.getItem("arcade_puzzle_record")) || 0;
 
     panel.innerHTML = `
 
@@ -1285,6 +1292,41 @@ function apriArcade(){
     <button class="arcadeOpzione" onclick="avviaSimon()">
         🎨 Sequenza Colori
         <span class="arcadeRecord">Record: round ${recordSimon}</span>
+    </button>
+
+    <button class="arcadeOpzione" onclick="avviaNumero()">
+        🔢 Indovina il Numero
+        <span class="arcadeRecord">${recordNumero > 0 ? "Record: " + recordNumero + " tentativi" : "Nessun record ancora"}</span>
+    </button>
+
+    <button class="arcadeOpzione" onclick="avviaTris()">
+        ⭕ Tris
+        <span class="arcadeRecord">Vittorie: ${recordTris}</span>
+    </button>
+
+    <button class="arcadeOpzione" onclick="avviaSerpente()">
+        🐍 Serpente
+        <span class="arcadeRecord">Record: ${recordSerpente}</span>
+    </button>
+
+    <button class="arcadeOpzione" onclick="avviaReazione()">
+        ⚡ Reazione Veloce
+        <span class="arcadeRecord">${recordReazione > 0 ? "Record: " + recordReazione + " ms" : "Nessun record ancora"}</span>
+    </button>
+
+    <button class="arcadeOpzione" onclick="avviaBandiera()">
+        🌍 Indovina la Bandiera
+        <span class="arcadeRecord">Record: ${recordBandiera}</span>
+    </button>
+
+    <button class="arcadeOpzione" onclick="avviaImpiccato()">
+        🔤 Impiccato
+        <span class="arcadeRecord">Vittorie: ${recordImpiccato}</span>
+    </button>
+
+    <button class="arcadeOpzione" onclick="avviaPuzzle()">
+        🧩 Puzzle Scorrevole
+        <span class="arcadeRecord">${recordPuzzle > 0 ? "Record: " + recordPuzzle + " mosse" : "Nessun record ancora"}</span>
     </button>
 
     `;
@@ -1724,6 +1766,900 @@ function fineSimon(){
     ${nuovoRecord ? "<p>🏆 Nuovo record!</p>" : `<p>Record: ${record}</p>`}
 
     <button class="quizButton" onclick="avviaSimon()">Rigioca</button>
+
+    <button class="quizButton" onclick="apriArcade()">Torna alla Sala Giochi</button>
+
+    `;
+
+}
+
+
+
+// ---------- Minigioco 4: Indovina il Numero ----------
+
+let numeroSegreto = 0;
+let numeroTentativi = 0;
+let numeroValoreAttuale = 50;
+
+
+
+function avviaNumero(){
+
+    numeroSegreto = 1 + Math.floor(Math.random() * 100);
+    numeroTentativi = 0;
+    numeroValoreAttuale = 50;
+
+    renderNumero("Ho pensato un numero da 1 a 100. Indovinalo con meno tentativi possibile!");
+
+}
+
+
+
+function renderNumero(messaggio){
+
+    panel.innerHTML = `
+
+    <h2>🔢 Indovina il Numero</h2>
+
+    <p>${messaggio}</p>
+
+    <div class="level">${numeroValoreAttuale}</div>
+
+    <div class="numeroControlli">
+        <button class="ctrlBtn" onclick="cambiaNumero(-10)">-10</button>
+        <button class="ctrlBtn" onclick="cambiaNumero(-1)">-1</button>
+        <button class="ctrlBtn" onclick="cambiaNumero(1)">+1</button>
+        <button class="ctrlBtn" onclick="cambiaNumero(10)">+10</button>
+    </div>
+
+    <button class="quizButton" onclick="provaNumero()">Prova questo numero!</button>
+
+    <p>Tentativi: ${numeroTentativi}</p>
+
+    `;
+
+}
+
+
+
+function cambiaNumero(quantita){
+
+    numeroValoreAttuale = Math.max(1, Math.min(100, numeroValoreAttuale + quantita));
+
+    renderNumero("Ho pensato un numero da 1 a 100. Indovinalo con meno tentativi possibile!");
+
+}
+
+
+
+function provaNumero(){
+
+    numeroTentativi++;
+
+    if(numeroValoreAttuale === numeroSegreto){
+
+        let record = parseInt(localStorage.getItem("arcade_numero_record")) || 0;
+        let nuovoRecord = (record === 0) || (numeroTentativi < record);
+
+        if(nuovoRecord){
+            localStorage.setItem("arcade_numero_record", numeroTentativi);
+        }
+
+        panel.innerHTML = `
+
+        <h2>🎉 Hai indovinato!</h2>
+
+        <p>Il numero era proprio ${numeroSegreto}, in ${numeroTentativi} tentativi.</p>
+
+        ${nuovoRecord ? "<p>🏆 Nuovo record!</p>" : ""}
+
+        <button class="quizButton" onclick="avviaNumero()">Rigioca</button>
+
+        <button class="quizButton" onclick="apriArcade()">Torna alla Sala Giochi</button>
+
+        `;
+
+    } else if(numeroValoreAttuale < numeroSegreto){
+
+        renderNumero("📈 Troppo basso! Prova con un numero più alto.");
+
+    } else {
+
+        renderNumero("📉 Troppo alto! Prova con un numero più basso.");
+
+    }
+
+}
+
+
+
+// ---------- Minigioco 5: Tris (contro il computer) ----------
+
+let trisCelle = [];
+let trisFinito = false;
+
+
+
+function avviaTris(){
+
+    trisCelle = ["", "", "", "", "", "", "", "", ""];
+    trisFinito = false;
+
+    renderTris("Tocca a te! Sei la ❌");
+
+}
+
+
+
+function renderTris(messaggio){
+
+    let griglia = "";
+
+    trisCelle.forEach(function(valore, indice){
+
+        griglia += `<button class="trisCella" onclick="giocaTris(${indice})" ${valore || trisFinito ? "disabled" : ""}>${valore === "X" ? "❌" : (valore === "O" ? "⭕" : "")}</button>`;
+
+    });
+
+    panel.innerHTML = `
+
+    <h2>⭕ Tris</h2>
+
+    <p>${messaggio}</p>
+
+    <div class="trisGriglia">${griglia}</div>
+
+    <button class="quizButton" onclick="avviaTris()">Rigioca</button>
+
+    <button class="quizButton" onclick="apriArcade()">Torna alla Sala Giochi</button>
+
+    `;
+
+}
+
+
+
+function combinazioniVincentiTris(){
+
+    return [
+        [0,1,2],[3,4,5],[6,7,8],
+        [0,3,6],[1,4,7],[2,5,8],
+        [0,4,8],[2,4,6]
+    ];
+
+}
+
+
+
+function controllaVincitoreTris(celle){
+
+    let combinazioni = combinazioniVincentiTris();
+
+    for(let i = 0; i < combinazioni.length; i++){
+
+        let [a,b,c] = combinazioni[i];
+
+        if(celle[a] && celle[a] === celle[b] && celle[a] === celle[c]){
+            return celle[a];
+        }
+
+    }
+
+    if(celle.every(function(v){ return v !== ""; })){
+        return "pareggio";
+    }
+
+    return null;
+
+}
+
+
+
+function giocaTris(indice){
+
+    if(trisCelle[indice] || trisFinito){
+        return;
+    }
+
+    trisCelle[indice] = "X";
+
+    let risultato = controllaVincitoreTris(trisCelle);
+
+    if(risultato){
+        concludiTris(risultato);
+        return;
+    }
+
+    // Turno del computer: sceglie una cella libera a caso
+    let libere = [];
+    trisCelle.forEach(function(v, i){ if(v === "") libere.push(i); });
+
+    if(libere.length > 0){
+        let sceltaComputer = libere[Math.floor(Math.random() * libere.length)];
+        trisCelle[sceltaComputer] = "O";
+    }
+
+    risultato = controllaVincitoreTris(trisCelle);
+
+    if(risultato){
+        concludiTris(risultato);
+        return;
+    }
+
+    renderTris("Tocca a te! Sei la ❌");
+
+}
+
+
+
+function concludiTris(risultato){
+
+    trisFinito = true;
+
+    let messaggio = "";
+
+    if(risultato === "X"){
+
+        let vittorie = (parseInt(localStorage.getItem("arcade_tris_vittorie")) || 0) + 1;
+        localStorage.setItem("arcade_tris_vittorie", vittorie);
+
+        messaggio = "🎉 Hai vinto tu!";
+
+    } else if(risultato === "O"){
+
+        messaggio = "😢 Ha vinto il computer, riprova!";
+
+    } else {
+
+        messaggio = "🤝 Pareggio!";
+
+    }
+
+    renderTris(messaggio);
+
+}
+
+
+
+// ---------- Minigioco 6: Serpente (Snake) ----------
+
+const SERPENTE_COLONNE = 12;
+const SERPENTE_RIGHE = 12;
+
+let serpenteCorpo = [];
+let serpenteDirezione = { dx: 1, dy: 0 };
+let serpenteProssimaDirezione = { dx: 1, dy: 0 };
+let serpenteCibo = { x: 5, y: 5 };
+let serpenteIntervallo = null;
+let serpenteFinito = false;
+let serpentePunteggio = 0;
+
+
+
+function avviaSerpente(){
+
+    serpenteCorpo = [{ x:5, y:6 }, { x:4, y:6 }, { x:3, y:6 }];
+    serpenteDirezione = { dx:1, dy:0 };
+    serpenteProssimaDirezione = { dx:1, dy:0 };
+    serpentePunteggio = 0;
+    serpenteFinito = false;
+
+    posizionaCiboSerpente();
+    renderSerpente();
+
+    if(serpenteIntervallo){
+        clearInterval(serpenteIntervallo);
+    }
+
+    serpenteIntervallo = setInterval(passoSerpente, 260);
+
+}
+
+
+
+function posizionaCiboSerpente(){
+
+    let libero = false;
+
+    while(!libero){
+
+        serpenteCibo = {
+            x: Math.floor(Math.random() * SERPENTE_COLONNE),
+            y: Math.floor(Math.random() * SERPENTE_RIGHE)
+        };
+
+        libero = !serpenteCorpo.some(function(segmento){
+            return segmento.x === serpenteCibo.x && segmento.y === serpenteCibo.y;
+        });
+
+    }
+
+}
+
+
+
+function direzioneSerpente(dx, dy){
+
+    // Evita di andare direttamente all'indietro su se stesso
+    if(dx === -serpenteDirezione.dx && dy === -serpenteDirezione.dy){
+        return;
+    }
+
+    serpenteProssimaDirezione = { dx, dy };
+
+}
+
+
+
+function passoSerpente(){
+
+    if(serpenteFinito){
+        return;
+    }
+
+    serpenteDirezione = serpenteProssimaDirezione;
+
+    let testa = serpenteCorpo[0];
+    let nuovaTesta = { x: testa.x + serpenteDirezione.dx, y: testa.y + serpenteDirezione.dy };
+
+    let fuoriMappa = nuovaTesta.x < 0 || nuovaTesta.x >= SERPENTE_COLONNE || nuovaTesta.y < 0 || nuovaTesta.y >= SERPENTE_RIGHE;
+    let controSeStesso = serpenteCorpo.some(function(segmento){ return segmento.x === nuovaTesta.x && segmento.y === nuovaTesta.y; });
+
+    if(fuoriMappa || controSeStesso){
+        fineSerpente();
+        return;
+    }
+
+    serpenteCorpo.unshift(nuovaTesta);
+
+    if(nuovaTesta.x === serpenteCibo.x && nuovaTesta.y === serpenteCibo.y){
+
+        serpentePunteggio++;
+        posizionaCiboSerpente();
+
+    } else {
+
+        serpenteCorpo.pop();
+
+    }
+
+    renderSerpente();
+
+}
+
+
+
+function renderSerpente(){
+
+    let celle = "";
+
+    for(let y = 0; y < SERPENTE_RIGHE; y++){
+
+        for(let x = 0; x < SERPENTE_COLONNE; x++){
+
+            let classe = "serpenteCella";
+
+            if(serpenteCorpo.length && serpenteCorpo[0].x === x && serpenteCorpo[0].y === y){
+                classe += " serpenteTesta";
+            } else if(serpenteCorpo.some(function(s){ return s.x === x && s.y === y; })){
+                classe += " serpenteCorpo";
+            } else if(serpenteCibo.x === x && serpenteCibo.y === y){
+                classe += " serpenteCibo";
+            }
+
+            celle += `<div class="${classe}"></div>`;
+
+        }
+
+    }
+
+    panel.innerHTML = `
+
+    <h2>🐍 Serpente</h2>
+
+    <p>Punteggio: ${serpentePunteggio}</p>
+
+    <div class="serpenteGriglia">${celle}</div>
+
+    <div class="numeroControlli">
+        <button class="ctrlBtn" onclick="direzioneSerpente(0,-1)">▲</button>
+    </div>
+    <div class="numeroControlli">
+        <button class="ctrlBtn" onclick="direzioneSerpente(-1,0)">◀</button>
+        <button class="ctrlBtn" onclick="direzioneSerpente(0,1)">▼</button>
+        <button class="ctrlBtn" onclick="direzioneSerpente(1,0)">▶</button>
+    </div>
+
+    <button class="quizButton" onclick="apriArcade()">Torna alla Sala Giochi</button>
+
+    `;
+
+}
+
+
+
+function fineSerpente(){
+
+    serpenteFinito = true;
+
+    if(serpenteIntervallo){
+        clearInterval(serpenteIntervallo);
+        serpenteIntervallo = null;
+    }
+
+    let record = parseInt(localStorage.getItem("arcade_serpente_record")) || 0;
+    let nuovoRecord = serpentePunteggio > record;
+
+    if(nuovoRecord){
+        localStorage.setItem("arcade_serpente_record", serpentePunteggio);
+        record = serpentePunteggio;
+    }
+
+    panel.innerHTML = `
+
+    <h2>💥 Game Over!</h2>
+
+    <p>Punteggio: ${serpentePunteggio}</p>
+
+    ${nuovoRecord ? "<p>🏆 Nuovo record!</p>" : `<p>Record: ${record}</p>`}
+
+    <button class="quizButton" onclick="avviaSerpente()">Rigioca</button>
+
+    <button class="quizButton" onclick="apriArcade()">Torna alla Sala Giochi</button>
+
+    `;
+
+}
+
+
+
+// ---------- Minigioco 7: Reazione Veloce ----------
+
+let reazioneTimeoutId = null;
+let reazioneMomentoVia = 0;
+let reazioneStatoPronto = false;
+
+
+
+function avviaReazione(){
+
+    reazioneStatoPronto = false;
+
+    panel.innerHTML = `
+
+    <h2>⚡ Reazione Veloce</h2>
+
+    <p>Aspetta che diventi verde, poi tocca il pulsante più veloce che puoi!</p>
+
+    <button class="reazioneBottone reazioneAttesa" onclick="reazioneTroppoPresto()">Aspetta...</button>
+
+    `;
+
+    let attesa = 1000 + Math.floor(Math.random() * 2500);
+
+    reazioneTimeoutId = setTimeout(function(){
+
+        reazioneStatoPronto = true;
+        reazioneMomentoVia = Date.now();
+
+        panel.innerHTML = `
+
+        <h2>⚡ Reazione Veloce</h2>
+
+        <p>TOCCA ORA!</p>
+
+        <button class="reazioneBottone reazioneVia" onclick="reazioneTocca()">TOCCA!</button>
+
+        `;
+
+    }, attesa);
+
+}
+
+
+
+function reazioneTroppoPresto(){
+
+    if(reazioneStatoPronto){
+        return;
+    }
+
+    clearTimeout(reazioneTimeoutId);
+
+    panel.innerHTML = `
+
+    <h2>😅 Troppo presto!</h2>
+
+    <p>Aspetta che diventi verde prima di toccare.</p>
+
+    <button class="quizButton" onclick="avviaReazione()">Riprova</button>
+
+    <button class="quizButton" onclick="apriArcade()">Torna alla Sala Giochi</button>
+
+    `;
+
+}
+
+
+
+function reazioneTocca(){
+
+    let tempoReazione = Date.now() - reazioneMomentoVia;
+
+    let record = parseInt(localStorage.getItem("arcade_reazione_record")) || 0;
+    let nuovoRecord = (record === 0) || (tempoReazione < record);
+
+    if(nuovoRecord){
+        localStorage.setItem("arcade_reazione_record", tempoReazione);
+    }
+
+    panel.innerHTML = `
+
+    <h2>⚡ Tempo di reazione</h2>
+
+    <p>${tempoReazione} millisecondi!</p>
+
+    ${nuovoRecord ? "<p>🏆 Nuovo record!</p>" : `<p>Record: ${record} ms</p>`}
+
+    <button class="quizButton" onclick="avviaReazione()">Riprova</button>
+
+    <button class="quizButton" onclick="apriArcade()">Torna alla Sala Giochi</button>
+
+    `;
+
+}
+
+
+
+// ---------- Minigioco 8: Indovina la Bandiera ----------
+
+const bandiereGioco = [
+    { emoji:"🇮🇹", nome:"Italia" },
+    { emoji:"🇫🇷", nome:"Francia" },
+    { emoji:"🇩🇪", nome:"Germania" },
+    { emoji:"🇪🇸", nome:"Spagna" },
+    { emoji:"🇬🇧", nome:"Regno Unito" },
+    { emoji:"🇯🇵", nome:"Giappone" },
+    { emoji:"🇨🇳", nome:"Cina" },
+    { emoji:"🇧🇷", nome:"Brasile" },
+    { emoji:"🇺🇸", nome:"Stati Uniti" },
+    { emoji:"🇦🇺", nome:"Australia" },
+    { emoji:"🇨🇦", nome:"Canada" },
+    { emoji:"🇪🇬", nome:"Egitto" },
+    { emoji:"🇬🇷", nome:"Grecia" },
+    { emoji:"🇵🇹", nome:"Portogallo" },
+    { emoji:"🇲🇽", nome:"Messico" }
+];
+
+let bandieraPunteggio = 0;
+let bandieraAttuale = null;
+let bandieraOpzioni = [];
+
+
+
+function avviaBandiera(){
+
+    bandieraPunteggio = 0;
+
+    prossimaBandiera();
+
+}
+
+
+
+function prossimaBandiera(){
+
+    bandieraAttuale = bandiereGioco[Math.floor(Math.random() * bandiereGioco.length)];
+
+    let altre = mescola(bandiereGioco.filter(function(b){ return b.nome !== bandieraAttuale.nome; })).slice(0, 2);
+
+    bandieraOpzioni = mescola([bandieraAttuale].concat(altre));
+
+    let bottoni = bandieraOpzioni.map(function(opzione){
+        return `<button class="quizButton" onclick="rispondiBandiera('${opzione.nome}')">${opzione.nome}</button>`;
+    }).join("");
+
+    panel.innerHTML = `
+
+    <h2>🌍 Indovina la Bandiera</h2>
+
+    <p>Punteggio: ${bandieraPunteggio}</p>
+
+    <div class="level">${bandieraAttuale.emoji}</div>
+
+    <p>Di quale paese è questa bandiera?</p>
+
+    ${bottoni}
+
+    `;
+
+}
+
+
+
+function rispondiBandiera(nomeScelto){
+
+    if(nomeScelto === bandieraAttuale.nome){
+
+        bandieraPunteggio++;
+        prossimaBandiera();
+
+    } else {
+
+        let record = parseInt(localStorage.getItem("arcade_bandiera_record")) || 0;
+        let nuovoRecord = bandieraPunteggio > record;
+
+        if(nuovoRecord){
+            localStorage.setItem("arcade_bandiera_record", bandieraPunteggio);
+            record = bandieraPunteggio;
+        }
+
+        panel.innerHTML = `
+
+        <h2>❌ Sbagliato!</h2>
+
+        <p>Era ${bandieraAttuale.nome}. Punteggio finale: ${bandieraPunteggio}</p>
+
+        ${nuovoRecord ? "<p>🏆 Nuovo record!</p>" : `<p>Record: ${record}</p>`}
+
+        <button class="quizButton" onclick="avviaBandiera()">Rigioca</button>
+
+        <button class="quizButton" onclick="apriArcade()">Torna alla Sala Giochi</button>
+
+        `;
+
+    }
+
+}
+
+
+
+// ---------- Minigioco 9: Impiccato ----------
+
+const paroleImpiccato = [
+    "BIBLIOTECA", "MUSEO", "PIANETA", "VULCANO", "GIRAFFA",
+    "TELESCOPIO", "AEROPORTO", "FARFALLA", "OCEANO", "CASTELLO",
+    "DELFINO", "MONTAGNA", "VIOLINO", "ASTRONAUTA", "FORESTA"
+];
+
+let impiccatoParola = "";
+let impiccatoLettereIndovinate = [];
+let impiccatoErrori = 0;
+const IMPICCATO_MAX_ERRORI = 6;
+
+
+
+function avviaImpiccato(){
+
+    impiccatoParola = paroleImpiccato[Math.floor(Math.random() * paroleImpiccato.length)];
+    impiccatoLettereIndovinate = [];
+    impiccatoErrori = 0;
+
+    renderImpiccato();
+
+}
+
+
+
+function renderImpiccato(){
+
+    let paroleMostrate = impiccatoParola.split("").map(function(lettera){
+        return impiccatoLettereIndovinate.indexOf(lettera) !== -1 ? lettera : "_";
+    }).join(" ");
+
+    let alfabeto = "ABCDEFGHILMNOPQRSTUVZ".split("");
+
+    let tastiera = alfabeto.map(function(lettera){
+        let usata = impiccatoLettereIndovinate.indexOf(lettera) !== -1;
+        return `<button class="impiccatoLettera" onclick="tentaLetteraImpiccato('${lettera}')" ${usata ? "disabled" : ""}>${lettera}</button>`;
+    }).join("");
+
+    panel.innerHTML = `
+
+    <h2>🔤 Impiccato</h2>
+
+    <p>Errori: ${impiccatoErrori} / ${IMPICCATO_MAX_ERRORI}</p>
+
+    <div class="level">${paroleMostrate}</div>
+
+    <div class="impiccatoTastiera">${tastiera}</div>
+
+    `;
+
+}
+
+
+
+function tentaLetteraImpiccato(lettera){
+
+    if(impiccatoLettereIndovinate.indexOf(lettera) !== -1){
+        return;
+    }
+
+    impiccatoLettereIndovinate.push(lettera);
+
+    if(impiccatoParola.indexOf(lettera) === -1){
+
+        impiccatoErrori++;
+
+        if(impiccatoErrori >= IMPICCATO_MAX_ERRORI){
+            fineImpiccato(false);
+            return;
+        }
+
+    } else {
+
+        let completa = impiccatoParola.split("").every(function(l){
+            return impiccatoLettereIndovinate.indexOf(l) !== -1;
+        });
+
+        if(completa){
+            fineImpiccato(true);
+            return;
+        }
+
+    }
+
+    renderImpiccato();
+
+}
+
+
+
+function fineImpiccato(vinto){
+
+    if(vinto){
+
+        let vittorie = (parseInt(localStorage.getItem("arcade_impiccato_vittorie")) || 0) + 1;
+        localStorage.setItem("arcade_impiccato_vittorie", vittorie);
+
+    }
+
+    panel.innerHTML = `
+
+    <h2>${vinto ? "🎉 Hai vinto!" : "😢 Hai perso!"}</h2>
+
+    <p>La parola era: ${impiccatoParola}</p>
+
+    <button class="quizButton" onclick="avviaImpiccato()">Rigioca</button>
+
+    <button class="quizButton" onclick="apriArcade()">Torna alla Sala Giochi</button>
+
+    `;
+
+}
+
+
+
+// ---------- Minigioco 10: Puzzle Scorrevole ----------
+
+let puzzleCelle = [];
+let puzzleMosse = 0;
+
+
+
+function avviaPuzzle(){
+
+    puzzleCelle = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0];
+    puzzleMosse = 0;
+
+    // Mescoliamo facendo mosse valide casuali, così il puzzle è sempre risolvibile
+    for(let i = 0; i < 150; i++){
+
+        let mosseValide = celleMuovililiPuzzle();
+        let scelta = mosseValide[Math.floor(Math.random() * mosseValide.length)];
+
+        scambiaPuzzle(scelta, false);
+
+    }
+
+    puzzleMosse = 0;
+
+    renderPuzzle();
+
+}
+
+
+
+function celleMuovililiPuzzle(){
+
+    let indiceVuoto = puzzleCelle.indexOf(0);
+    let riga = Math.floor(indiceVuoto / 4);
+    let colonna = indiceVuoto % 4;
+
+    let candidate = [];
+
+    if(riga > 0) candidate.push(indiceVuoto - 4);
+    if(riga < 3) candidate.push(indiceVuoto + 4);
+    if(colonna > 0) candidate.push(indiceVuoto - 1);
+    if(colonna < 3) candidate.push(indiceVuoto + 1);
+
+    return candidate;
+
+}
+
+
+
+function scambiaPuzzle(indice, contaMossa){
+
+    let indiceVuoto = puzzleCelle.indexOf(0);
+
+    let temp = puzzleCelle[indice];
+    puzzleCelle[indice] = 0;
+    puzzleCelle[indiceVuoto] = temp;
+
+    if(contaMossa){
+        puzzleMosse++;
+    }
+
+}
+
+
+
+function toccaPuzzle(indice){
+
+    let mosseValide = celleMuovililiPuzzle();
+
+    if(mosseValide.indexOf(indice) === -1){
+        return;
+    }
+
+    scambiaPuzzle(indice, true);
+
+    let vinto = puzzleCelle.every(function(valore, i){
+        return (i === 15) ? valore === 0 : valore === i + 1;
+    });
+
+    if(vinto){
+        finePuzzle();
+    } else {
+        renderPuzzle();
+    }
+
+}
+
+
+
+function renderPuzzle(){
+
+    let celle = puzzleCelle.map(function(valore, indice){
+        return `<button class="puzzleCella ${valore === 0 ? "puzzleVuota" : ""}" onclick="toccaPuzzle(${indice})">${valore === 0 ? "" : valore}</button>`;
+    }).join("");
+
+    panel.innerHTML = `
+
+    <h2>🧩 Puzzle Scorrevole</h2>
+
+    <p>Rimetti i numeri in ordine da 1 a 15! Mosse: ${puzzleMosse}</p>
+
+    <div class="puzzleGriglia">${celle}</div>
+
+    <button class="quizButton" onclick="apriArcade()">Torna alla Sala Giochi</button>
+
+    `;
+
+}
+
+
+
+function finePuzzle(){
+
+    let record = parseInt(localStorage.getItem("arcade_puzzle_record")) || 0;
+    let nuovoRecord = (record === 0) || (puzzleMosse < record);
+
+    if(nuovoRecord){
+        localStorage.setItem("arcade_puzzle_record", puzzleMosse);
+    }
+
+    panel.innerHTML = `
+
+    <h2>🎉 Puzzle completato!</h2>
+
+    <p>Ce l'hai fatta in ${puzzleMosse} mosse.</p>
+
+    ${nuovoRecord ? "<p>🏆 Nuovo record!</p>" : `<p>Record: ${record} mosse</p>`}
+
+    <button class="quizButton" onclick="avviaPuzzle()">Rigioca</button>
 
     <button class="quizButton" onclick="apriArcade()">Torna alla Sala Giochi</button>
 
