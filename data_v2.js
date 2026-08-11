@@ -89,11 +89,11 @@ const buildings = {
             },
 
             {
-                domanda:"Qual è la capitale d'Italia?",
+                domanda:"Quale continente ospita il Sahara, il deserto più grande del mondo?",
                 opzioni:[
-                    { testo:"🏛️ Roma", corretta:true },
-                    { testo:"🏙️ Milano", corretta:false },
-                    { testo:"🌋 Napoli", corretta:false }
+                    { testo:"🌍 Africa", corretta:true },
+                    { testo:"🌏 Asia", corretta:false },
+                    { testo:"🌎 Sud America", corretta:false }
                 ]
             },
 
@@ -218,7 +218,7 @@ const buildings = {
         domande:[
 
             {
-                domanda:"Chi guida un Comune in Italia?",
+                domanda:"Chi guida di solito una città o un comune?",
                 opzioni:[
                     { testo:"🎓 Il Sindaco", corretta:true },
                     { testo:"👑 Il Re", corretta:false },
@@ -227,11 +227,11 @@ const buildings = {
             },
 
             {
-                domanda:"Cos'è una legge?",
+                domanda:"Come si chiama il capo del governo nel Regno Unito?",
                 opzioni:[
-                    { testo:"📜 Una regola che tutti devono rispettare", corretta:true },
-                    { testo:"🎲 Un gioco da tavolo", corretta:false },
-                    { testo:"🍰 Un dolce", corretta:false }
+                    { testo:"🎩 Il Primo Ministro", corretta:true },
+                    { testo:"🎖️ Il Presidente", corretta:false },
+                    { testo:"👑 Il Sindaco", corretta:false }
                 ]
             },
 
@@ -263,20 +263,20 @@ const buildings = {
             },
 
             {
-                domanda:"Cosa fanno i vigili urbani?",
+                domanda:"In quale paese la bandiera ha una foglia d'acero rossa al centro?",
                 opzioni:[
-                    { testo:"🚦 Regolano il traffico e aiutano i cittadini", corretta:true },
-                    { testo:"🍳 Cucinano nei ristoranti", corretta:false },
-                    { testo:"📐 Insegnano matematica", corretta:false }
+                    { testo:"🇨🇦 Canada", corretta:true },
+                    { testo:"🇺🇸 Stati Uniti", corretta:false },
+                    { testo:"🇲🇽 Messico", corretta:false }
                 ]
             },
 
             {
-                domanda:"Come si chiama il documento che serve per farsi riconoscere?",
+                domanda:"In Spagna e nel Regno Unito, chi è il capo di Stato insieme al governo?",
                 opzioni:[
-                    { testo:"🪪 Carta d'identità", corretta:true },
-                    { testo:"📄 Pagella", corretta:false },
-                    { testo:"🎟️ Biglietto del cinema", corretta:false }
+                    { testo:"👑 Il Re o la Regina", corretta:true },
+                    { testo:"🏛️ Il Sindaco", corretta:false },
+                    { testo:"🎓 Il Preside", corretta:false }
                 ]
             },
 
@@ -299,20 +299,20 @@ const buildings = {
             },
 
             {
-                domanda:"Come si chiamano le persone che vivono in una città?",
+                domanda:"In quale paese si festeggia il 14 luglio come festa nazionale?",
                 opzioni:[
-                    { testo:"🧑‍🤝‍🧑 Cittadini", corretta:true },
-                    { testo:"🐾 Animali", corretta:false },
-                    { testo:"✈️ Solo turisti", corretta:false }
+                    { testo:"🇫🇷 Francia", corretta:true },
+                    { testo:"🇮🇹 Italia", corretta:false },
+                    { testo:"🇩🇪 Germania", corretta:false }
                 ]
             },
 
             {
-                domanda:"Chi decide le leggi nazionali in Italia?",
+                domanda:"In quale paese il capo dello Stato si chiama Imperatore?",
                 opzioni:[
-                    { testo:"🏛️ Il Parlamento", corretta:true },
-                    { testo:"🎒 Il Preside", corretta:false },
-                    { testo:"🏫 Il Sindaco", corretta:false }
+                    { testo:"🇯🇵 Giappone", corretta:true },
+                    { testo:"🇮🇹 Italia", corretta:false },
+                    { testo:"🇪🇸 Spagna", corretta:false }
                 ]
             },
 
@@ -335,20 +335,20 @@ const buildings = {
             },
 
             {
-                domanda:"Chi rappresenta l'Italia nel mondo come capo dello Stato?",
+                domanda:"Chi è il capo dello Stato in Italia?",
                 opzioni:[
                     { testo:"🎖️ Il Presidente della Repubblica", corretta:true },
-                    { testo:"🏛️ Il Sindaco", corretta:false },
+                    { testo:"👑 Il Re", corretta:false },
                     { testo:"🎓 Il Maestro", corretta:false }
                 ]
             },
 
             {
-                domanda:"Cosa si festeggia il 2 giugno in Italia?",
+                domanda:"Perché è importante andare a votare da adulti?",
                 opzioni:[
-                    { testo:"🇮🇹 La Festa della Repubblica", corretta:true },
-                    { testo:"🎄 Il Natale", corretta:false },
-                    { testo:"🏖️ Ferragosto", corretta:false }
+                    { testo:"🗳️ Per scegliere chi ci governa", corretta:true },
+                    { testo:"🏆 Per vincere un premio", corretta:false },
+                    { testo:"❌ Non è importante", corretta:false }
                 ]
             },
 
@@ -380,11 +380,11 @@ const buildings = {
             },
 
             {
-                domanda:"Come si chiama la bandiera italiana, con i tre colori verde, bianco e rosso?",
+                domanda:"Di che colori è la bandiera italiana?",
                 opzioni:[
-                    { testo:"🇮🇹 Tricolore", corretta:true },
-                    { testo:"🏳️ Bicolore", corretta:false },
-                    { testo:"🚩 Stendardo", corretta:false }
+                    { testo:"🟢⚪🔴 Verde, bianco e rosso", corretta:true },
+                    { testo:"🔵⚪🔴 Blu, bianco e rosso", corretta:false },
+                    { testo:"⚫🔴🟡 Nero, rosso e giallo", corretta:false }
                 ]
             },
 
@@ -862,10 +862,10 @@ const buildings = {
                 { testo:"🙊 Nasconderlo", corretta:false }
             ]},
 
-            { domanda:"Quale numero si chiama in Italia in caso di emergenza medica?", opzioni:[
-                { testo:"☎️ 118", corretta:true },
-                { testo:"☎️ 100", corretta:false },
-                { testo:"☎️ 25", corretta:false }
+            { domanda:"Cosa dovresti fare se vedi qualcuno in pericolo?", opzioni:[
+                { testo:"🆘 Chiamare aiuto o i soccorsi", corretta:true },
+                { testo:"🙈 Ignorarlo", corretta:false },
+                { testo:"🏃 Scappare senza dire niente", corretta:false }
             ]},
 
             { domanda:"Cosa aiuta a guarire un osso rotto?", opzioni:[
@@ -1261,7 +1261,7 @@ const buildings = {
                 { testo:"➡️ Resta sempre uguale", corretta:false }
             ]},
 
-            { domanda:"Come si chiama la moneta usata in Italia e in molti paesi europei?", opzioni:[
+            { domanda:"Come si chiama la moneta usata in molti paesi europei?", opzioni:[
                 { testo:"💶 Euro", corretta:true },
                 { testo:"💵 Dollaro", corretta:false },
                 { testo:"💷 Sterlina", corretta:false }
