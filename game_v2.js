@@ -102,7 +102,7 @@ function updateInfo(){
     document.getElementById(
         "playerInfo"
     ).innerHTML =
-    "⭐ Edifici sbloccati: "
+    "⭐ " + t("edificiSbloccati") + ": "
     + sbloccati + "/" + totale;
 
 }
@@ -122,7 +122,7 @@ function openBuilding(type){
     <h2>${edificio.emoji} ${edificio.nome}</h2>
 
     <p>
-    Missione:
+    ${t("missione")}:
     ${edificio.missione}
     </p>
 
@@ -130,7 +130,7 @@ function openBuilding(type){
     <button class="quizButton"
     onclick="startQuiz('${type}')">
 
-    Inizia missione
+    ${t("iniziaMissione")}
 
     </button>
 
@@ -210,10 +210,10 @@ function renderDomandaSessione(){
 
     panel.innerHTML = `
 
-    <h2>Quiz ${edificio.nome}</h2>
+    <h2>${t("quiz")} ${edificio.nome}</h2>
 
     <p class="quizProgresso">
-    Domanda ${indiceSessione + 1} di ${domandeSessione.length}
+    ${t("domanda")} ${indiceSessione + 1} ${t("di")} ${domandeSessione.length}
     </p>
 
     <p>
@@ -237,8 +237,8 @@ function rispondiSessione(indiceScelto){
     }
 
     let messaggio = scelta.corretta
-        ? "✅ Esatto!"
-        : "❌ Sbagliato!";
+        ? t("esatto")
+        : t("sbagliato");
 
     let ultimaDomanda = (indiceSessione === domandeSessione.length - 1);
 
@@ -249,7 +249,7 @@ function rispondiSessione(indiceScelto){
     <button class="quizButton"
     onclick="prossimaDomandaSessione()">
 
-    ${ultimaDomanda ? "Vedi risultato" : "Prossima domanda"}
+    ${ultimaDomanda ? t("vediRisultato") : t("prossimaDomanda")}
 
     </button>
 
@@ -292,16 +292,16 @@ function finisciSessione(){
 
     if(miglioramento && recordPrecedente > 0){
 
-        messaggioRecord = `<p>🎉 Hai fatto meglio dell'ultima volta! L'edificio cresce!</p>`;
+        messaggioRecord = `<p>${t("recordMigliorato")}</p>`;
 
     }
 
     panel.innerHTML = `
 
-    <h2>Risultato</h2>
+    <h2>${t("risultato")}</h2>
 
     <p>
-    Hai risposto bene a ${correttiSessione} domande su ${domandeSessione.length}
+    ${t("haiRispostoBene")} ${correttiSessione} ${t("domandeSu")} ${domandeSessione.length}
     </p>
 
     ${messaggioRecord}
@@ -313,14 +313,14 @@ function finisciSessione(){
 
 
     <h3>
-    ${edificio.nome} livello ${edificio.livello}
+    ${edificio.nome} ${t("livello")} ${edificio.livello}
     </h3>
 
 
     <button class="quizButton"
     onclick="location.reload()">
 
-    Torna alla città
+    ${t("tornaAllaCitta")}
 
     </button>
 
@@ -1275,9 +1275,9 @@ function apriArcade(){
 
     panel.innerHTML = `
 
-    <h2>🕹️ Sala Giochi</h2>
+    <h2>${t("salaGiochi")}</h2>
 
-    <p>Scegli un minigioco!</p>
+    <p>${t("scegliMinigioco")}</p>
 
     <button class="arcadeOpzione" onclick="avviaTalpa()">
         🐹 Acchiappa la Talpa
@@ -1459,7 +1459,7 @@ function fineTalpa(){
 
     <button class="quizButton" onclick="avviaTalpa()">Rigioca</button>
 
-    <button class="quizButton" onclick="apriArcade()">Torna alla Sala Giochi</button>
+    <button class="quizButton" onclick="apriArcade()">${t("tornaSalaGiochi")}</button>
 
     `;
 
@@ -1601,7 +1601,7 @@ function fineMemoria(){
 
     <button class="quizButton" onclick="avviaMemoria()">Rigioca</button>
 
-    <button class="quizButton" onclick="apriArcade()">Torna alla Sala Giochi</button>
+    <button class="quizButton" onclick="apriArcade()">${t("tornaSalaGiochi")}</button>
 
     `;
 
@@ -1767,7 +1767,7 @@ function fineSimon(){
 
     <button class="quizButton" onclick="avviaSimon()">Rigioca</button>
 
-    <button class="quizButton" onclick="apriArcade()">Torna alla Sala Giochi</button>
+    <button class="quizButton" onclick="apriArcade()">${t("tornaSalaGiochi")}</button>
 
     `;
 
@@ -1855,7 +1855,7 @@ function provaNumero(){
 
         <button class="quizButton" onclick="avviaNumero()">Rigioca</button>
 
-        <button class="quizButton" onclick="apriArcade()">Torna alla Sala Giochi</button>
+        <button class="quizButton" onclick="apriArcade()">${t("tornaSalaGiochi")}</button>
 
         `;
 
@@ -1911,7 +1911,7 @@ function renderTris(messaggio){
 
     <button class="quizButton" onclick="avviaTris()">Rigioca</button>
 
-    <button class="quizButton" onclick="apriArcade()">Torna alla Sala Giochi</button>
+    <button class="quizButton" onclick="apriArcade()">${t("tornaSalaGiochi")}</button>
 
     `;
 
@@ -2170,7 +2170,7 @@ function renderSerpente(){
         <button class="ctrlBtn" onclick="direzioneSerpente(1,0)">▶</button>
     </div>
 
-    <button class="quizButton" onclick="apriArcade()">Torna alla Sala Giochi</button>
+    <button class="quizButton" onclick="apriArcade()">${t("tornaSalaGiochi")}</button>
 
     `;
 
@@ -2205,7 +2205,7 @@ function fineSerpente(){
 
     <button class="quizButton" onclick="avviaSerpente()">Rigioca</button>
 
-    <button class="quizButton" onclick="apriArcade()">Torna alla Sala Giochi</button>
+    <button class="quizButton" onclick="apriArcade()">${t("tornaSalaGiochi")}</button>
 
     `;
 
@@ -2274,7 +2274,7 @@ function reazioneTroppoPresto(){
 
     <button class="quizButton" onclick="avviaReazione()">Riprova</button>
 
-    <button class="quizButton" onclick="apriArcade()">Torna alla Sala Giochi</button>
+    <button class="quizButton" onclick="apriArcade()">${t("tornaSalaGiochi")}</button>
 
     `;
 
@@ -2303,7 +2303,7 @@ function reazioneTocca(){
 
     <button class="quizButton" onclick="avviaReazione()">Riprova</button>
 
-    <button class="quizButton" onclick="apriArcade()">Torna alla Sala Giochi</button>
+    <button class="quizButton" onclick="apriArcade()">${t("tornaSalaGiochi")}</button>
 
     `;
 
@@ -2404,7 +2404,7 @@ function rispondiBandiera(nomeScelto){
 
         <button class="quizButton" onclick="avviaBandiera()">Rigioca</button>
 
-        <button class="quizButton" onclick="apriArcade()">Torna alla Sala Giochi</button>
+        <button class="quizButton" onclick="apriArcade()">${t("tornaSalaGiochi")}</button>
 
         `;
 
@@ -2523,7 +2523,7 @@ function fineImpiccato(vinto){
 
     <button class="quizButton" onclick="avviaImpiccato()">Rigioca</button>
 
-    <button class="quizButton" onclick="apriArcade()">Torna alla Sala Giochi</button>
+    <button class="quizButton" onclick="apriArcade()">${t("tornaSalaGiochi")}</button>
 
     `;
 
@@ -2634,7 +2634,7 @@ function renderPuzzle(){
 
     <div class="puzzleGriglia">${celle}</div>
 
-    <button class="quizButton" onclick="apriArcade()">Torna alla Sala Giochi</button>
+    <button class="quizButton" onclick="apriArcade()">${t("tornaSalaGiochi")}</button>
 
     `;
 
@@ -2661,7 +2661,7 @@ function finePuzzle(){
 
     <button class="quizButton" onclick="avviaPuzzle()">Rigioca</button>
 
-    <button class="quizButton" onclick="apriArcade()">Torna alla Sala Giochi</button>
+    <button class="quizButton" onclick="apriArcade()">${t("tornaSalaGiochi")}</button>
 
     `;
 
