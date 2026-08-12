@@ -1,4 +1,4 @@
-const buildings = {
+const buildingsIT = {
 
     biblioteca: {
 
