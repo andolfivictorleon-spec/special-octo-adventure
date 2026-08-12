@@ -16,6 +16,7 @@
     <h1>🏙️ La mia città</h1>
     <p id="playerInfo"></p>
     <button id="btnCambiaPersonaggio" class="quizButton">🔄 Cambia personaggio</button>
+    <button id="btnImpostazioni" class="quizButton" onclick="apriImpostazioni()">⚙️</button>
 </header>
 
 
@@ -23,9 +24,9 @@
 
 <section id="selezionePersonaggio">
 
-    <h2>Scegli il tuo personaggio!</h2>
+    <h2 id="titoloScelta">Scegli il tuo personaggio!</h2>
 
-    <p>Un personaggio 3D che si muove nella città</p>
+    <p id="sottotitoloScelta">Un personaggio 3D che si muove nella città</p>
 
     <div id="listaPersonaggi">
 
@@ -67,18 +68,27 @@
 
 <section id="gamePanel">
 
-    <h2>Benvenuto!</h2>
+    <h2 id="titoloBenvenuto">Benvenuto!</h2>
 
-    <p>
+    <p id="testoBenvenuto">
         Clicca un edificio per iniziare.
     </p>
 
 </section>
 
 
+<div id="finestraImpostazioni" class="nascosto">
+
+    <div id="corpoImpostazioni"></div>
+
+</div>
+
+
 </main>
 
 <script src="data_v2.js"></script>
+<script src="data_en.js"></script>
+<script src="lingua.js"></script>
 <script src="buildings_v2.js"></script>
 <script src="game_v2.js"></script>
 
