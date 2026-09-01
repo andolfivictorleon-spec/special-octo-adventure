@@ -86,6 +86,30 @@ header {
 }
 
 
+#selezioneCitta {
+
+    background:white;
+    max-width:500px;
+    margin:30px auto;
+    padding:20px;
+    border-radius:20px;
+
+}
+
+
+.inputTesto {
+
+    display:block;
+    width:85%;
+    margin:14px auto;
+    padding:12px;
+    font-size:16px;
+    border-radius:10px;
+    border:2px solid #ddd;
+
+}
+
+
 #listaPersonaggi {
 
     display:grid;
