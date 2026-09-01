@@ -29,7 +29,27 @@ const TESTI = {
         scegliLingua:"Scegli la lingua",
         chiudi:"Chiudi",
         benvenuto:"Benvenuto!",
-        cliccaEdificio:"Clicca un edificio per iniziare."
+        cliccaEdificio:"Clicca un edificio per iniziare.",
+        nomeTalpa:"🐹 Acchiappa la Talpa",
+        nomeMemoria:"🧠 Memoria",
+        nomeSimon:"🎨 Sequenza Colori",
+        nomeNumero:"🔢 Indovina il Numero",
+        nomeTris:"⭕ Tris",
+        nomeSerpente:"🐍 Serpente",
+        nomeReazione:"⚡ Reazione Veloce",
+        nomeBandiera:"🌍 Indovina la Bandiera",
+        nomeImpiccato:"🔤 Impiccato",
+        nomePuzzle:"🧩 Puzzle Scorrevole",
+        rigioca:"Rigioca",
+        nessunRecord:"Nessun record ancora",
+        record:"Record",
+        vittorie:"Vittorie",
+        salvataggi:"💾 Salvataggi",
+        cittaAttuale:"Città attuale",
+        salvaOra:"💾 Salva ora",
+        cambiaCitta:"🔄 Cambia città",
+        progressoSalvato:"✅ Progresso salvato!",
+        salvaAutomatico:"Il gioco salva sempre da solo, ma puoi salvare anche a mano quando vuoi."
     },
 
     en: {
@@ -59,7 +79,27 @@ const TESTI = {
         scegliLingua:"Choose language",
         chiudi:"Close",
         benvenuto:"Welcome!",
-        cliccaEdificio:"Click a building to start."
+        cliccaEdificio:"Click a building to start.",
+        nomeTalpa:"🐹 Whack-a-Mole",
+        nomeMemoria:"🧠 Memory",
+        nomeSimon:"🎨 Color Sequence",
+        nomeNumero:"🔢 Guess the Number",
+        nomeTris:"⭕ Tic-Tac-Toe",
+        nomeSerpente:"🐍 Snake",
+        nomeReazione:"⚡ Quick Reaction",
+        nomeBandiera:"🌍 Guess the Flag",
+        nomeImpiccato:"🔤 Hangman",
+        nomePuzzle:"🧩 Sliding Puzzle",
+        rigioca:"Play again",
+        nessunRecord:"No record yet",
+        record:"Record",
+        vittorie:"Wins",
+        salvataggi:"💾 Saves",
+        cittaAttuale:"Current city",
+        salvaOra:"💾 Save now",
+        cambiaCitta:"🔄 Change city",
+        progressoSalvato:"✅ Progress saved!",
+        salvaAutomatico:"The game always saves by itself, but you can also save manually whenever you want."
     }
 
 };
@@ -173,6 +213,7 @@ function renderizzaImpostazioni(){
     `;
 
 }
+
 
 
 applicaTraduzioniStatiche();
