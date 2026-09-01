@@ -56,17 +56,15 @@ return miglioramento;
 
 
 
-
 function saveBuildings(){
 
 localStorage.setItem(
 
-"buildings",
+chiave("buildings"),
 
 JSON.stringify(buildings)
 
 );
-
 
 }
 
@@ -76,7 +74,7 @@ function loadBuildings(){
 
 
 let saved =
-localStorage.getItem("buildings");
+localStorage.getItem(chiave("buildings"));
 
 
 
