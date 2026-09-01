@@ -14,7 +14,7 @@ document.getElementById("gamePanel");
 function saveGame(){
 
     localStorage.setItem(
-        "cittaEducativa",
+        chiave("cittaEducativa"),
         JSON.stringify(player)
     );
 
@@ -25,7 +25,7 @@ function saveGame(){
 function loadGame(){
 
     let data =
-    localStorage.getItem("cittaEducativa");
+    localStorage.getItem(chiave("cittaEducativa"));
 
 
     if(data){
@@ -69,10 +69,6 @@ function edificioSbloccato(nome){
     return edificioCompletato(precedente);
 
 }
-
-
-
-// (aggiornaBottoniEdifici e aggiornaAspettoEdifici sono definite più sotto, per i modelli 3D)
 
 
 
@@ -362,7 +358,6 @@ sole3D.position.set(5, 8, 4);
 scena3D.add(sole3D);
 
 
-// Il terreno verde
 const terreno = new THREE.Mesh(
     new THREE.PlaneGeometry(17, 16),
     new THREE.MeshStandardMaterial({ color: 0x8bd36b })
@@ -371,8 +366,6 @@ terreno.rotation.x = -Math.PI / 2;
 scena3D.add(terreno);
 
 
-
-// ---------- Posizioni degli edifici: griglia 4 colonne x 4 righe ----------
 
 const posizioniEdifici = {};
 
@@ -399,7 +392,6 @@ ordineEdifici.forEach(function(nome){
 
 function posizioneVerso(base, distanza){
 
-    // Sposta un punto "verso l'esterno" della mappa, per non sovrapporsi ad altri edifici
     let segnoX = base.x >= 0 ? 1 : -1;
     let segnoZ = base.z >= 0 ? 1 : -1;
 
@@ -411,8 +403,6 @@ function posizioneVerso(base, distanza){
 }
 
 
-
-// ---------- Aspetto degli edifici: stile "casetta classica" ----------
 
 const aspettoEdifici = {
 
@@ -602,6 +592,7 @@ function creaEdificioRealistico(nome, scala){
 
     gruppo.userData.materialiColorati = [materialeParete];
     gruppo.userData.materialeTetto = materialeTetto;
+    gruppo.userData.scalaBase = scala;
 
     gruppo.scale.set(scala, scala, scala);
 
@@ -703,9 +694,78 @@ let vicinoArcade = false;
 
 
 
-function aggiornaBottoniEdifici(){
+// ---------- L'edificio Salva (💾) ----------
 
-    // Il "blocco" si vede colorando l'edificio di grigio; la logica di ingresso resta in edificioSbloccato().
+const posizioneSalva = { x: 2.6, z: 5.4 };
+
+
+
+function creaSalva(){
+
+    let gruppo = new THREE.Group();
+
+    let corpo = new THREE.Mesh(
+        new THREE.BoxGeometry(0.6, 0.5, 0.5),
+        new THREE.MeshStandardMaterial({ color: 0x34495e })
+    );
+    corpo.position.y = 0.35;
+    gruppo.add(corpo);
+
+    let etichetta = new THREE.Mesh(
+        new THREE.BoxGeometry(0.4, 0.3, 0.02),
+        new THREE.MeshStandardMaterial({ color: 0x3498db })
+    );
+    etichetta.position.set(0, 0.4, 0.26);
+    gruppo.add(etichetta);
+
+    let angoloTagliato = new THREE.Mesh(
+        new THREE.BoxGeometry(0.15, 0.15, 0.06),
+        new THREE.MeshStandardMaterial({ color: 0xecf0f1 })
+    );
+    angoloTagliato.position.set(0.15, 0.53, 0.26);
+    gruppo.add(angoloTagliato);
+
+    return gruppo;
+
+}
+
+
+
+const salvaMesh = creaSalva();
+salvaMesh.position.set(posizioneSalva.x, 0, posizioneSalva.z);
+scena3D.add(salvaMesh);
+
+let vicinoSalva = false;
+
+
+
+function apriGestioneSalvataggi(mostraConferma){
+
+    let elenco = elencoCitta();
+
+    let cittaCorrente = elenco.find(function(c){ return c.id === cittaAttiva; });
+
+    let nomeCorrente = cittaCorrente ? cittaCorrente.nome : "?";
+
+    panel.innerHTML = `
+
+    <h2>💾 Salvataggi</h2>
+
+    <p>Città attuale: <strong>${nomeCorrente}</strong></p>
+
+    ${mostraConferma ? "<p>✅ Progresso salvato!</p>" : "<p>Il gioco salva sempre da solo, ma puoi salvare anche a mano quando vuoi.</p>"}
+
+    <button class="quizButton" onclick="salvaOraProgresso()">💾 Salva ora</button>
+
+    <button class="quizButton" onclick="tornaSelezioneCitta()">🔄 Cambia città</button>
+
+    `;
+
+}
+
+
+
+function aggiornaBottoniEdifici(){
 
 }
 
@@ -733,7 +793,6 @@ function coloraEdificio(gruppo, coloreOriginale, sbloccato){
 
 function applicaBagliore(gruppo, livello){
 
-    // Rimuove l'eventuale indicatore precedente
     if(gruppo.userData.indicatore){
 
         gruppo.remove(gruppo.userData.indicatore);
@@ -791,6 +850,18 @@ function applicaBagliore(gruppo, livello){
 
 
 
+function scalaPerLivello(livello){
+
+    if(livello === "Argento") return 1.12;
+    if(livello === "Oro") return 1.25;
+    if(livello === "Diamante") return 1.4;
+
+    return 1.0;
+
+}
+
+
+
 function aggiornaAspettoEdifici(){
 
     ordineEdifici.forEach(function(nome){
@@ -807,8 +878,11 @@ function aggiornaAspettoEdifici(){
         coloraEdificio(gruppo, aspettoEdifici[nome].parete, sbloccato);
         applicaBagliore(gruppo, sbloccato ? edificio.livello : null);
 
+        let fattoreLivello = scalaPerLivello(sbloccato ? edificio.livello : null);
+        let scalaFinale = gruppo.userData.scalaBase * fattoreLivello;
+        gruppo.scale.set(scalaFinale, scalaFinale, scalaFinale);
 
-        // Edificio duplicato: mostra il livello dell'ULTIMO tentativo, solo se diverso dal record
+
         let livelloUltimo = getLevel(edificio.punteggio);
         let mostraDuplicato = sbloccato && edificio.punteggio > 0 && livelloUltimo !== edificio.livello;
 
@@ -829,6 +903,10 @@ function aggiornaAspettoEdifici(){
 
             coloraEdificio(edificiMeshDuplicato[nome], aspettoEdifici[nome].parete, true);
             applicaBagliore(edificiMeshDuplicato[nome], livelloUltimo);
+
+            let fattoreLivelloDup = scalaPerLivello(livelloUltimo);
+            let scalaFinaleDup = edificiMeshDuplicato[nome].userData.scalaBase * fattoreLivelloDup;
+            edificiMeshDuplicato[nome].scale.set(scalaFinaleDup, scalaFinaleDup, scalaFinaleDup);
 
         } else if(edificiMeshDuplicato[nome]){
 
@@ -852,7 +930,6 @@ let orologioAnimazione = 0;
 
 function segmentoScarabocchio(lunghezza, raggio, colore){
 
-    // Un cilindro leggermente irregolare, come tracciato a mano libera
     let geometria = new THREE.CylinderGeometry(raggio * 0.85, raggio, lunghezza, 6);
     let materiale = new THREE.MeshStandardMaterial({ color: colore, flatShading: true });
 
@@ -868,13 +945,11 @@ function creaPersonaggio3D(colore){
 
     let nero = 0x2b2438;
 
-    // Corpo: un cilindro sottile e un po' storto, come un tratto di penna
     let corpo = segmentoScarabocchio(0.6, 0.14, colore);
     corpo.position.y = 0.5;
     corpo.rotation.z = 0.06;
     gruppo.add(corpo);
 
-    // Testa: una sfera leggermente schiacciata, col contorno nero (effetto "disegnato")
     let testaContorno = new THREE.Mesh(
         new THREE.SphereGeometry(0.34, 10, 10),
         new THREE.MeshBasicMaterial({ color: nero, side: THREE.BackSide })
@@ -890,7 +965,6 @@ function creaPersonaggio3D(colore){
     testa.position.y = 1.05;
     gruppo.add(testa);
 
-    // Occhi: due piccoli punti neri come uno scarabocchio
     let materialeOcchi = new THREE.MeshBasicMaterial({ color: nero });
 
     let occhioSx = new THREE.Mesh(new THREE.SphereGeometry(0.035, 6, 6), materialeOcchi);
@@ -901,7 +975,6 @@ function creaPersonaggio3D(colore){
     occhioDx.position.set(0.1, 1.06, 0.28);
     gruppo.add(occhioDx);
 
-    // Sorriso: una piccola linea curva fatta con un toro sottile
     let sorriso = new THREE.Mesh(
         new THREE.TorusGeometry(0.09, 0.015, 6, 10, Math.PI),
         materialeOcchi
@@ -910,7 +983,6 @@ function creaPersonaggio3D(colore){
     sorriso.rotation.z = Math.PI;
     gruppo.add(sorriso);
 
-    // Braccia: due bastoncini sottili e storti
     let braccioSx = segmentoScarabocchio(0.4, 0.06, nero);
     braccioSx.position.set(-0.28, 0.6, 0);
     braccioSx.rotation.z = 0.5;
@@ -921,7 +993,6 @@ function creaPersonaggio3D(colore){
     braccioDx.rotation.z = -0.45;
     gruppo.add(braccioDx);
 
-    // Gambe: due bastoncini sottili
     let gambaSx = segmentoScarabocchio(0.42, 0.07, nero);
     gambaSx.position.set(-0.12, 0.05, 0);
     gambaSx.rotation.z = 0.12;
@@ -1088,30 +1159,43 @@ function controllaVicinanza(){
 
     }
 
+
+    let distanzaSalva = Math.hypot(posizioneX - posizioneSalva.x, posizioneZ - posizioneSalva.z);
+
+    if(distanzaSalva <= DISTANZA_INGRESSO && !vicinoSalva){
+
+        vicinoSalva = true;
+        apriGestioneSalvataggi(false);
+
+    }
+
+    if(distanzaSalva > DISTANZA_INGRESSO){
+
+        vicinoSalva = false;
+
+    }
+
 }
 
 
 
-// Tenendo premuto un bottone o un tasto, il personaggio continua a camminare
-// finché non lo si rilascia.
-
 let intervalloMovimento = null;
 let direzioneAttiva = null;
-const PAUSA_TRA_PASSI = 130; // millisecondi tra un passo e l'altro mentre si tiene premuto
+const PAUSA_TRA_PASSI = 130;
 
 
 
 function iniziaMovimentoContinuo(nomeDirezione, dx, dz){
 
     if(direzioneAttiva === nomeDirezione){
-        return; // già in movimento in questa direzione
+        return;
     }
 
     fermaMovimentoContinuo();
 
     direzioneAttiva = nomeDirezione;
 
-    muovi(dx, dz); // primo passo subito, per rispondere anche a un tocco veloce
+    muovi(dx, dz);
 
     intervalloMovimento = setInterval(function(){
         muovi(dx, dz);
@@ -1208,7 +1292,7 @@ document.addEventListener("keyup", function(evento){
 
 function scegliPersonaggio(colore){
 
-    localStorage.setItem("personaggioScelto", colore);
+    localStorage.setItem(chiave("personaggioScelto"), colore);
 
     impostaPersonaggio3D(colore);
 
@@ -1236,42 +1320,53 @@ document.getElementById("btnCambiaPersonaggio").addEventListener("click", functi
 
 
 
-loadBuildings();
-loadGame();
-updateInfo();
-aggiornaBottoniEdifici();
-aggiornaAspettoEdifici();
+function inizializzaGioco(){
 
+    loadBuildings();
+    loadGame();
+    updateInfo();
+    aggiornaBottoniEdifici();
+    aggiornaAspettoEdifici();
 
+    let personaggioSalvato = localStorage.getItem(chiave("personaggioScelto"));
 
-let personaggioSalvato = localStorage.getItem("personaggioScelto");
+    if(personaggioSalvato){
 
-if(personaggioSalvato){
+        scegliPersonaggio(personaggioSalvato);
 
-    scegliPersonaggio(personaggioSalvato);
+    } else {
 
-} else {
+        schermataSelezione.classList.remove("nascosto");
 
-    schermataSelezione.classList.remove("nascosto");
+    }
 
 }
 
+
+
+if(cittaAttiva){
+
+    document.getElementById("selezioneCitta").classList.add("nascosto");
+
+    inizializzaGioco();
+
+}
 
 
 // ---------- Sala Giochi: menù principale ----------
 
 function apriArcade(){
 
-    let recordTalpa = parseInt(localStorage.getItem("arcade_talpa_record")) || 0;
-    let recordMemoria = parseInt(localStorage.getItem("arcade_memoria_record")) || 0;
-    let recordSimon = parseInt(localStorage.getItem("arcade_simon_record")) || 0;
-    let recordNumero = parseInt(localStorage.getItem("arcade_numero_record")) || 0;
-    let recordTris = parseInt(localStorage.getItem("arcade_tris_vittorie")) || 0;
-    let recordSerpente = parseInt(localStorage.getItem("arcade_serpente_record")) || 0;
-    let recordReazione = parseInt(localStorage.getItem("arcade_reazione_record")) || 0;
-    let recordBandiera = parseInt(localStorage.getItem("arcade_bandiera_record")) || 0;
-    let recordImpiccato = parseInt(localStorage.getItem("arcade_impiccato_vittorie")) || 0;
-    let recordPuzzle = parseInt(localStorage.getItem("arcade_puzzle_record")) || 0;
+    let recordTalpa = parseInt(localStorage.getItem(chiave("arcade_talpa_record"))) || 0;
+    let recordMemoria = parseInt(localStorage.getItem(chiave("arcade_memoria_record"))) || 0;
+    let recordSimon = parseInt(localStorage.getItem(chiave("arcade_simon_record"))) || 0;
+    let recordNumero = parseInt(localStorage.getItem(chiave("arcade_numero_record"))) || 0;
+    let recordTris = parseInt(localStorage.getItem(chiave("arcade_tris_vittorie"))) || 0;
+    let recordSerpente = parseInt(localStorage.getItem(chiave("arcade_serpente_record"))) || 0;
+    let recordReazione = parseInt(localStorage.getItem(chiave("arcade_reazione_record"))) || 0;
+    let recordBandiera = parseInt(localStorage.getItem(chiave("arcade_bandiera_record"))) || 0;
+    let recordImpiccato = parseInt(localStorage.getItem(chiave("arcade_impiccato_vittorie"))) || 0;
+    let recordPuzzle = parseInt(localStorage.getItem(chiave("arcade_puzzle_record"))) || 0;
 
     panel.innerHTML = `
 
@@ -1280,53 +1375,53 @@ function apriArcade(){
     <p>${t("scegliMinigioco")}</p>
 
     <button class="arcadeOpzione" onclick="avviaTalpa()">
-        🐹 Acchiappa la Talpa
-        <span class="arcadeRecord">Record: ${recordTalpa}</span>
+        ${t("nomeTalpa")}
+        <span class="arcadeRecord">${t("record")}: ${recordTalpa}</span>
     </button>
 
     <button class="arcadeOpzione" onclick="avviaMemoria()">
-        🧠 Memoria
-        <span class="arcadeRecord">${recordMemoria > 0 ? "Record: " + recordMemoria + " mosse" : "Nessun record ancora"}</span>
+        ${t("nomeMemoria")}
+        <span class="arcadeRecord">${recordMemoria > 0 ? t("record") + ": " + recordMemoria : t("nessunRecord")}</span>
     </button>
 
     <button class="arcadeOpzione" onclick="avviaSimon()">
-        🎨 Sequenza Colori
-        <span class="arcadeRecord">Record: round ${recordSimon}</span>
+        ${t("nomeSimon")}
+        <span class="arcadeRecord">${t("record")}: ${recordSimon}</span>
     </button>
 
     <button class="arcadeOpzione" onclick="avviaNumero()">
-        🔢 Indovina il Numero
-        <span class="arcadeRecord">${recordNumero > 0 ? "Record: " + recordNumero + " tentativi" : "Nessun record ancora"}</span>
+        ${t("nomeNumero")}
+        <span class="arcadeRecord">${recordNumero > 0 ? t("record") + ": " + recordNumero : t("nessunRecord")}</span>
     </button>
 
     <button class="arcadeOpzione" onclick="avviaTris()">
-        ⭕ Tris
-        <span class="arcadeRecord">Vittorie: ${recordTris}</span>
+        ${t("nomeTris")}
+        <span class="arcadeRecord">${t("vittorie")}: ${recordTris}</span>
     </button>
 
     <button class="arcadeOpzione" onclick="avviaSerpente()">
-        🐍 Serpente
-        <span class="arcadeRecord">Record: ${recordSerpente}</span>
+        ${t("nomeSerpente")}
+        <span class="arcadeRecord">${t("record")}: ${recordSerpente}</span>
     </button>
 
     <button class="arcadeOpzione" onclick="avviaReazione()">
-        ⚡ Reazione Veloce
-        <span class="arcadeRecord">${recordReazione > 0 ? "Record: " + recordReazione + " ms" : "Nessun record ancora"}</span>
+        ${t("nomeReazione")}
+        <span class="arcadeRecord">${recordReazione > 0 ? t("record") + ": " + recordReazione + " ms" : t("nessunRecord")}</span>
     </button>
 
     <button class="arcadeOpzione" onclick="avviaBandiera()">
-        🌍 Indovina la Bandiera
-        <span class="arcadeRecord">Record: ${recordBandiera}</span>
+        ${t("nomeBandiera")}
+        <span class="arcadeRecord">${t("record")}: ${recordBandiera}</span>
     </button>
 
     <button class="arcadeOpzione" onclick="avviaImpiccato()">
-        🔤 Impiccato
-        <span class="arcadeRecord">Vittorie: ${recordImpiccato}</span>
+        ${t("nomeImpiccato")}
+        <span class="arcadeRecord">${t("vittorie")}: ${recordImpiccato}</span>
     </button>
 
     <button class="arcadeOpzione" onclick="avviaPuzzle()">
-        🧩 Puzzle Scorrevole
-        <span class="arcadeRecord">${recordPuzzle > 0 ? "Record: " + recordPuzzle + " mosse" : "Nessun record ancora"}</span>
+        ${t("nomePuzzle")}
+        <span class="arcadeRecord">${recordPuzzle > 0 ? t("record") + ": " + recordPuzzle : t("nessunRecord")}</span>
     </button>
 
     `;
@@ -1423,7 +1518,7 @@ function renderTalpa(){
 
     panel.innerHTML = `
 
-    <h2>🐹 Acchiappa la Talpa</h2>
+    <h2>${t("nomeTalpa")}</h2>
 
     <p>Punteggio: ${talpaPunteggio} — Tempo: ${talpaTempoRimasto}s</p>
 
@@ -1441,11 +1536,11 @@ function fineTalpa(){
     clearTimeout(talpaNascondiTimeoutId);
     clearTimeout(talpaSpawnTimeoutId);
 
-    let record = parseInt(localStorage.getItem("arcade_talpa_record")) || 0;
+    let record = parseInt(localStorage.getItem(chiave("arcade_talpa_record"))) || 0;
     let nuovoRecord = talpaPunteggio > record;
 
     if(nuovoRecord){
-        localStorage.setItem("arcade_talpa_record", talpaPunteggio);
+        localStorage.setItem(chiave("arcade_talpa_record"), talpaPunteggio);
         record = talpaPunteggio;
     }
 
@@ -1457,7 +1552,7 @@ function fineTalpa(){
 
     ${nuovoRecord ? "<p>🎉 Nuovo record!</p>" : `<p>Record: ${record}</p>`}
 
-    <button class="quizButton" onclick="avviaTalpa()">Rigioca</button>
+    <button class="quizButton" onclick="avviaTalpa()">${t("rigioca")}</button>
 
     <button class="quizButton" onclick="apriArcade()">${t("tornaSalaGiochi")}</button>
 
@@ -1510,7 +1605,7 @@ function renderMemoria(){
 
     panel.innerHTML = `
 
-    <h2>🧠 Memoria</h2>
+    <h2>${t("nomeMemoria")}</h2>
 
     <p>Mosse: ${memoriaMosse}</p>
 
@@ -1583,11 +1678,11 @@ function giraCarta(indice){
 
 function fineMemoria(){
 
-    let record = parseInt(localStorage.getItem("arcade_memoria_record")) || 0;
+    let record = parseInt(localStorage.getItem(chiave("arcade_memoria_record"))) || 0;
     let nuovoRecord = (record === 0) || (memoriaMosse < record);
 
     if(nuovoRecord){
-        localStorage.setItem("arcade_memoria_record", memoriaMosse);
+        localStorage.setItem(chiave("arcade_memoria_record"), memoriaMosse);
         record = memoriaMosse;
     }
 
@@ -1599,7 +1694,7 @@ function fineMemoria(){
 
     ${nuovoRecord ? "<p>🏆 Nuovo record!</p>" : `<p>Record: ${record} mosse</p>`}
 
-    <button class="quizButton" onclick="avviaMemoria()">Rigioca</button>
+    <button class="quizButton" onclick="avviaMemoria()">${t("rigioca")}</button>
 
     <button class="quizButton" onclick="apriArcade()">${t("tornaSalaGiochi")}</button>
 
@@ -1641,7 +1736,7 @@ function renderSimon(informazione){
 
     panel.innerHTML = `
 
-    <h2>🎨 Sequenza Colori</h2>
+    <h2>${t("nomeSimon")}</h2>
 
     <p>${informazione || ("Round: " + simonSequenza.length)}</p>
 
@@ -1749,11 +1844,11 @@ function fineSimon(){
 
     let roundCompletati = simonSequenza.length - 1;
 
-    let record = parseInt(localStorage.getItem("arcade_simon_record")) || 0;
+    let record = parseInt(localStorage.getItem(chiave("arcade_simon_record"))) || 0;
     let nuovoRecord = roundCompletati > record;
 
     if(nuovoRecord){
-        localStorage.setItem("arcade_simon_record", roundCompletati);
+        localStorage.setItem(chiave("arcade_simon_record"), roundCompletati);
         record = roundCompletati;
     }
 
@@ -1765,7 +1860,7 @@ function fineSimon(){
 
     ${nuovoRecord ? "<p>🏆 Nuovo record!</p>" : `<p>Record: ${record}</p>`}
 
-    <button class="quizButton" onclick="avviaSimon()">Rigioca</button>
+    <button class="quizButton" onclick="avviaSimon()">${t("rigioca")}</button>
 
     <button class="quizButton" onclick="apriArcade()">${t("tornaSalaGiochi")}</button>
 
@@ -1799,7 +1894,7 @@ function renderNumero(messaggio){
 
     panel.innerHTML = `
 
-    <h2>🔢 Indovina il Numero</h2>
+    <h2>${t("nomeNumero")}</h2>
 
     <p>${messaggio}</p>
 
@@ -1838,11 +1933,11 @@ function provaNumero(){
 
     if(numeroValoreAttuale === numeroSegreto){
 
-        let record = parseInt(localStorage.getItem("arcade_numero_record")) || 0;
+        let record = parseInt(localStorage.getItem(chiave("arcade_numero_record"))) || 0;
         let nuovoRecord = (record === 0) || (numeroTentativi < record);
 
         if(nuovoRecord){
-            localStorage.setItem("arcade_numero_record", numeroTentativi);
+            localStorage.setItem(chiave("arcade_numero_record"), numeroTentativi);
         }
 
         panel.innerHTML = `
@@ -1853,7 +1948,7 @@ function provaNumero(){
 
         ${nuovoRecord ? "<p>🏆 Nuovo record!</p>" : ""}
 
-        <button class="quizButton" onclick="avviaNumero()">Rigioca</button>
+        <button class="quizButton" onclick="avviaNumero()">${t("rigioca")}</button>
 
         <button class="quizButton" onclick="apriArcade()">${t("tornaSalaGiochi")}</button>
 
@@ -1903,13 +1998,13 @@ function renderTris(messaggio){
 
     panel.innerHTML = `
 
-    <h2>⭕ Tris</h2>
+    <h2>${t("nomeTris")}</h2>
 
     <p>${messaggio}</p>
 
     <div class="trisGriglia">${griglia}</div>
 
-    <button class="quizButton" onclick="avviaTris()">Rigioca</button>
+    <button class="quizButton" onclick="avviaTris()">${t("rigioca")}</button>
 
     <button class="quizButton" onclick="apriArcade()">${t("tornaSalaGiochi")}</button>
 
@@ -1970,7 +2065,6 @@ function giocaTris(indice){
         return;
     }
 
-    // Turno del computer: sceglie una cella libera a caso
     let libere = [];
     trisCelle.forEach(function(v, i){ if(v === "") libere.push(i); });
 
@@ -2000,8 +2094,8 @@ function concludiTris(risultato){
 
     if(risultato === "X"){
 
-        let vittorie = (parseInt(localStorage.getItem("arcade_tris_vittorie")) || 0) + 1;
-        localStorage.setItem("arcade_tris_vittorie", vittorie);
+        let vittorie = (parseInt(localStorage.getItem(chiave("arcade_tris_vittorie"))) || 0) + 1;
+        localStorage.setItem(chiave("arcade_tris_vittorie"), vittorie);
 
         messaggio = "🎉 Hai vinto tu!";
 
@@ -2080,7 +2174,6 @@ function posizionaCiboSerpente(){
 
 function direzioneSerpente(dx, dy){
 
-    // Evita di andare direttamente all'indietro su se stesso
     if(dx === -serpenteDirezione.dx && dy === -serpenteDirezione.dy){
         return;
     }
@@ -2155,7 +2248,7 @@ function renderSerpente(){
 
     panel.innerHTML = `
 
-    <h2>🐍 Serpente</h2>
+    <h2>${t("nomeSerpente")}</h2>
 
     <p>Punteggio: ${serpentePunteggio}</p>
 
@@ -2187,11 +2280,11 @@ function fineSerpente(){
         serpenteIntervallo = null;
     }
 
-    let record = parseInt(localStorage.getItem("arcade_serpente_record")) || 0;
+    let record = parseInt(localStorage.getItem(chiave("arcade_serpente_record"))) || 0;
     let nuovoRecord = serpentePunteggio > record;
 
     if(nuovoRecord){
-        localStorage.setItem("arcade_serpente_record", serpentePunteggio);
+        localStorage.setItem(chiave("arcade_serpente_record"), serpentePunteggio);
         record = serpentePunteggio;
     }
 
@@ -2203,7 +2296,7 @@ function fineSerpente(){
 
     ${nuovoRecord ? "<p>🏆 Nuovo record!</p>" : `<p>Record: ${record}</p>`}
 
-    <button class="quizButton" onclick="avviaSerpente()">Rigioca</button>
+    <button class="quizButton" onclick="avviaSerpente()">${t("rigioca")}</button>
 
     <button class="quizButton" onclick="apriArcade()">${t("tornaSalaGiochi")}</button>
 
@@ -2227,7 +2320,7 @@ function avviaReazione(){
 
     panel.innerHTML = `
 
-    <h2>⚡ Reazione Veloce</h2>
+    <h2>${t("nomeReazione")}</h2>
 
     <p>Aspetta che diventi verde, poi tocca il pulsante più veloce che puoi!</p>
 
@@ -2244,7 +2337,7 @@ function avviaReazione(){
 
         panel.innerHTML = `
 
-        <h2>⚡ Reazione Veloce</h2>
+        <h2>${t("nomeReazione")}</h2>
 
         <p>TOCCA ORA!</p>
 
@@ -2286,11 +2379,11 @@ function reazioneTocca(){
 
     let tempoReazione = Date.now() - reazioneMomentoVia;
 
-    let record = parseInt(localStorage.getItem("arcade_reazione_record")) || 0;
+    let record = parseInt(localStorage.getItem(chiave("arcade_reazione_record"))) || 0;
     let nuovoRecord = (record === 0) || (tempoReazione < record);
 
     if(nuovoRecord){
-        localStorage.setItem("arcade_reazione_record", tempoReazione);
+        localStorage.setItem(chiave("arcade_reazione_record"), tempoReazione);
     }
 
     panel.innerHTML = `
@@ -2361,7 +2454,7 @@ function prossimaBandiera(){
 
     panel.innerHTML = `
 
-    <h2>🌍 Indovina la Bandiera</h2>
+    <h2>${t("nomeBandiera")}</h2>
 
     <p>Punteggio: ${bandieraPunteggio}</p>
 
@@ -2386,11 +2479,11 @@ function rispondiBandiera(nomeScelto){
 
     } else {
 
-        let record = parseInt(localStorage.getItem("arcade_bandiera_record")) || 0;
+        let record = parseInt(localStorage.getItem(chiave("arcade_bandiera_record"))) || 0;
         let nuovoRecord = bandieraPunteggio > record;
 
         if(nuovoRecord){
-            localStorage.setItem("arcade_bandiera_record", bandieraPunteggio);
+            localStorage.setItem(chiave("arcade_bandiera_record"), bandieraPunteggio);
             record = bandieraPunteggio;
         }
 
@@ -2402,7 +2495,7 @@ function rispondiBandiera(nomeScelto){
 
         ${nuovoRecord ? "<p>🏆 Nuovo record!</p>" : `<p>Record: ${record}</p>`}
 
-        <button class="quizButton" onclick="avviaBandiera()">Rigioca</button>
+        <button class="quizButton" onclick="avviaBandiera()">${t("rigioca")}</button>
 
         <button class="quizButton" onclick="apriArcade()">${t("tornaSalaGiochi")}</button>
 
@@ -2456,7 +2549,7 @@ function renderImpiccato(){
 
     panel.innerHTML = `
 
-    <h2>🔤 Impiccato</h2>
+    <h2>${t("nomeImpiccato")}</h2>
 
     <p>Errori: ${impiccatoErrori} / ${IMPICCATO_MAX_ERRORI}</p>
 
@@ -2510,8 +2603,8 @@ function fineImpiccato(vinto){
 
     if(vinto){
 
-        let vittorie = (parseInt(localStorage.getItem("arcade_impiccato_vittorie")) || 0) + 1;
-        localStorage.setItem("arcade_impiccato_vittorie", vittorie);
+        let vittorie = (parseInt(localStorage.getItem(chiave("arcade_impiccato_vittorie"))) || 0) + 1;
+        localStorage.setItem(chiave("arcade_impiccato_vittorie"), vittorie);
 
     }
 
@@ -2521,7 +2614,7 @@ function fineImpiccato(vinto){
 
     <p>La parola era: ${impiccatoParola}</p>
 
-    <button class="quizButton" onclick="avviaImpiccato()">Rigioca</button>
+    <button class="quizButton" onclick="avviaImpiccato()">${t("rigioca")}</button>
 
     <button class="quizButton" onclick="apriArcade()">${t("tornaSalaGiochi")}</button>
 
@@ -2543,7 +2636,6 @@ function avviaPuzzle(){
     puzzleCelle = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0];
     puzzleMosse = 0;
 
-    // Mescoliamo facendo mosse valide casuali, così il puzzle è sempre risolvibile
     for(let i = 0; i < 150; i++){
 
         let mosseValide = celleMuovililiPuzzle();
@@ -2628,7 +2720,7 @@ function renderPuzzle(){
 
     panel.innerHTML = `
 
-    <h2>🧩 Puzzle Scorrevole</h2>
+    <h2>${t("nomePuzzle")}</h2>
 
     <p>Rimetti i numeri in ordine da 1 a 15! Mosse: ${puzzleMosse}</p>
 
@@ -2644,11 +2736,11 @@ function renderPuzzle(){
 
 function finePuzzle(){
 
-    let record = parseInt(localStorage.getItem("arcade_puzzle_record")) || 0;
+    let record = parseInt(localStorage.getItem(chiave("arcade_puzzle_record"))) || 0;
     let nuovoRecord = (record === 0) || (puzzleMosse < record);
 
     if(nuovoRecord){
-        localStorage.setItem("arcade_puzzle_record", puzzleMosse);
+        localStorage.setItem(chiave("arcade_puzzle_record"), puzzleMosse);
     }
 
     panel.innerHTML = `
@@ -2659,7 +2751,7 @@ function finePuzzle(){
 
     ${nuovoRecord ? "<p>🏆 Nuovo record!</p>" : `<p>Record: ${record} mosse</p>`}
 
-    <button class="quizButton" onclick="avviaPuzzle()">Rigioca</button>
+    <button class="quizButton" onclick="avviaPuzzle()">${t("rigioca")}</button>
 
     <button class="quizButton" onclick="apriArcade()">${t("tornaSalaGiochi")}</button>
 
