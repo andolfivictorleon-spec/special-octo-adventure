@@ -67,10 +67,58 @@ function confermaNuovaCitta(){
     let nome = campo.value.trim();
 
     if(!nome){
-        nome = "Città senza nome";
+        nome = t("cittaSenzaNome");
     }
 
     creaNuovaCitta(nome);
+
+}
+
+
+
+function haProgressoVecchio(){
+
+    return localStorage.getItem("buildings") !== null;
+
+}
+
+
+
+function importaProgressoVecchio(){
+
+    let elenco = elencoCitta();
+
+    let id = "c" + Date.now();
+
+    elenco.push({ id:id, nome: t("titoloApp").replace("🏙️ ", "") });
+
+    salvaElencoCitta(elenco);
+
+    cittaAttiva = id;
+
+    localStorage.setItem("cittaAttiva", id);
+
+    let chiaviDaCopiare = [
+        "buildings", "cittaEducativa", "personaggioScelto",
+        "arcade_talpa_record", "arcade_memoria_record", "arcade_simon_record",
+        "arcade_numero_record", "arcade_tris_vittorie", "arcade_serpente_record",
+        "arcade_reazione_record", "arcade_bandiera_record", "arcade_impiccato_vittorie",
+        "arcade_puzzle_record"
+    ];
+
+    chiaviDaCopiare.forEach(function(chiaveVecchia){
+
+        let valore = localStorage.getItem(chiaveVecchia);
+
+        if(valore !== null){
+            localStorage.setItem(chiave(chiaveVecchia), valore);
+        }
+
+    });
+
+    document.getElementById("selezioneCitta").classList.add("nascosto");
+
+    inizializzaGioco();
 
 }
 
@@ -86,13 +134,19 @@ function renderizzaSelezioneCitta(){
         return `<button class="quizButton" onclick="selezionaCitta('${c.id}')">🏙️ ${c.nome}</button>`;
     }).join("");
 
+    let importaHtml = haProgressoVecchio()
+        ? `<button class="quizButton" onclick="importaProgressoVecchio()">${t("importaCitta")}</button>`
+        : "";
+
     contenitore.innerHTML = `
 
     ${listaHtml}
 
-    <input type="text" id="nomeNuovaCitta" class="inputTesto" placeholder="Nome nuova città">
+    ${importaHtml}
 
-    <button class="quizButton" onclick="confermaNuovaCitta()">➕ Crea nuova città</button>
+    <input type="text" id="nomeNuovaCitta" class="inputTesto" placeholder="${t("placeholderNomeCitta")}">
+
+    <button class="quizButton" onclick="confermaNuovaCitta()">${t("creaCitta")}</button>
 
     `;
 
