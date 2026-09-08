@@ -1072,7 +1072,7 @@ let vicinoAttuale = null;
 
 const PASSO = 0.45;
 const LIMITE_X = 6.4;
-const LIMITE_Z = 6.6;
+const LIMITE_Z = 9.5;
 const DISTANZA_INGRESSO = 1.2;
 
 
