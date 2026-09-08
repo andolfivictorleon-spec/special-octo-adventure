@@ -49,7 +49,14 @@ const TESTI = {
         salvaOra:"💾 Salva ora",
         cambiaCitta:"🔄 Cambia città",
         progressoSalvato:"✅ Progresso salvato!",
-        salvaAutomatico:"Il gioco salva sempre da solo, ma puoi salvare anche a mano quando vuoi."
+        salvaAutomatico:"Il gioco salva sempre da solo, ma puoi salvare anche a mano quando vuoi.",
+        titoloApp:"🏙️ La mia città",
+        sceltaCittaTitolo:"🏙️ Scegli la tua città",
+        sceltaCittaSottotitolo:"Ogni città ha il suo progresso separato.",
+        placeholderNomeCitta:"Nome nuova città",
+        creaCitta:"➕ Crea nuova città",
+        importaCitta:"⬆️ Importa la mia vecchia città",
+        cittaSenzaNome:"Città senza nome"
     },
 
     en: {
@@ -99,7 +106,14 @@ const TESTI = {
         salvaOra:"💾 Save now",
         cambiaCitta:"🔄 Change city",
         progressoSalvato:"✅ Progress saved!",
-        salvaAutomatico:"The game always saves by itself, but you can also save manually whenever you want."
+        salvaAutomatico:"The game always saves by itself, but you can also save manually whenever you want.",
+        titoloApp:"🏙️ My City",
+        sceltaCittaTitolo:"🏙️ Choose your city",
+        sceltaCittaSottotitolo:"Each city has its own separate progress.",
+        placeholderNomeCitta:"New city name",
+        creaCitta:"➕ Create new city",
+        importaCitta:"⬆️ Import my old city",
+        cittaSenzaNome:"Unnamed city"
     }
 
 };
@@ -129,12 +143,22 @@ function applicaTraduzioniStatiche(){
     let elCambiaPersonaggio = document.getElementById("btnCambiaPersonaggio");
     let elTitoloBenvenuto = document.getElementById("titoloBenvenuto");
     let elTestoBenvenuto = document.getElementById("testoBenvenuto");
+    let elTitoloApp = document.getElementById("titoloApp");
+    let elTitoloSceltaCitta = document.getElementById("titoloSceltaCitta");
+    let elSottotitoloSceltaCitta = document.getElementById("sottotitoloSceltaCitta");
 
     if(elTitolo) elTitolo.textContent = t("titoloScelta");
     if(elSottotitolo) elSottotitolo.textContent = t("sottotitoloScelta");
     if(elCambiaPersonaggio) elCambiaPersonaggio.textContent = t("cambiaPersonaggio");
     if(elTitoloBenvenuto) elTitoloBenvenuto.textContent = t("benvenuto");
     if(elTestoBenvenuto) elTestoBenvenuto.textContent = t("cliccaEdificio");
+    if(elTitoloApp) elTitoloApp.textContent = t("titoloApp");
+    if(elTitoloSceltaCitta) elTitoloSceltaCitta.textContent = t("sceltaCittaTitolo");
+    if(elSottotitoloSceltaCitta) elSottotitoloSceltaCitta.textContent = t("sceltaCittaSottotitolo");
+
+    if(typeof renderizzaSelezioneCitta === "function"){
+        renderizzaSelezioneCitta();
+    }
 
 }
 
