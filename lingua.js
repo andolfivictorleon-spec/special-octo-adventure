@@ -56,7 +56,8 @@ const TESTI = {
         placeholderNomeCitta:"Nome nuova città",
         creaCitta:"➕ Crea nuova città",
         importaCitta:"⬆️ Importa la mia vecchia città",
-        cittaSenzaNome:"Città senza nome"
+        cittaSenzaNome:"Città senza nome",
+        rinominaCitta:"✏️ Rinomina città"
     },
 
     en: {
@@ -113,7 +114,8 @@ const TESTI = {
         placeholderNomeCitta:"New city name",
         creaCitta:"➕ Create new city",
         importaCitta:"⬆️ Import my old city",
-        cittaSenzaNome:"Unnamed city"
+        cittaSenzaNome:"Unnamed city",
+        rinominaCitta:"✏️ Rename city"
     }
 
 };
