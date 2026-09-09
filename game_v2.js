@@ -749,17 +749,31 @@ function apriGestioneSalvataggi(mostraConferma){
 
     panel.innerHTML = `
 
-    <h2>💾 Salvataggi</h2>
+    <h2>${t("salvataggi")}</h2>
 
-    <p>Città attuale: <strong>${nomeCorrente}</strong></p>
+    <p>${t("cittaAttuale")}: <strong>${nomeCorrente}</strong></p>
 
-    ${mostraConferma ? "<p>✅ Progresso salvato!</p>" : "<p>Il gioco salva sempre da solo, ma puoi salvare anche a mano quando vuoi.</p>"}
+    ${mostraConferma ? `<p>${t("progressoSalvato")}</p>` : `<p>${t("salvaAutomatico")}</p>`}
 
-    <button class="quizButton" onclick="salvaOraProgresso()">💾 Salva ora</button>
+    <input type="text" id="nomeRinominaCitta" class="inputTesto" placeholder="${t("placeholderNomeCitta")}" value="${nomeCorrente}">
 
-    <button class="quizButton" onclick="tornaSelezioneCitta()">🔄 Cambia città</button>
+    <button class="quizButton" onclick="confermaRinominaCitta()">${t("rinominaCitta")}</button>
+
+    <button class="quizButton" onclick="salvaOraProgresso()">${t("salvaOra")}</button>
+
+    <button class="quizButton" onclick="tornaSelezioneCitta()">${t("cambiaCitta")}</button>
 
     `;
+
+}
+
+
+
+function confermaRinominaCitta(){
+
+    let campo = document.getElementById("nomeRinominaCitta");
+
+    rinominaCittaAttuale(campo.value);
 
 }
 
