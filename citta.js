@@ -164,6 +164,25 @@ function tornaSelezioneCitta(){
 
 
 
+function rinominaCittaAttuale(nuovoNome){
+
+    let elenco = elencoCitta();
+
+    let cittaCorrente = elenco.find(function(c){ return c.id === cittaAttiva; });
+
+    if(cittaCorrente && nuovoNome && nuovoNome.trim()){
+        cittaCorrente.nome = nuovoNome.trim();
+        salvaElencoCitta(elenco);
+    }
+
+    if(typeof apriGestioneSalvataggi === "function"){
+        apriGestioneSalvataggi(false);
+    }
+
+}
+
+
+
 function salvaOraProgresso(){
 
     if(typeof saveBuildings === "function"){
