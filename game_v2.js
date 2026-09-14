@@ -940,6 +940,11 @@ function aggiornaAspettoEdifici(){
 let gruppoPersonaggio3D = null;
 let orologioAnimazione = 0;
 
+// Angolo verso cui il personaggio deve girarsi (in radianti) e se si sta muovendo
+let angoloRotazionePersonaggio = 0;
+let personaggioInCammino = false;
+let cicloCamminata = 0;
+
 
 
 function segmentoScarabocchio(lunghezza, raggio, colore){
@@ -1017,6 +1022,18 @@ function creaPersonaggio3D(colore){
     gambaDx.rotation.z = -0.1;
     gruppo.add(gambaDx);
 
+    // Salviamo i riferimenti a braccia e gambe per poterli animare mentre cammina
+    gruppo.userData.arti = {
+        braccioSx: braccioSx,
+        braccioDx: braccioDx,
+        gambaSx: gambaSx,
+        gambaDx: gambaDx,
+        rotazioneBaseBraccioSx: 0.5,
+        rotazioneBaseBraccioDx: -0.45,
+        rotazioneBaseGambaSx: 0.12,
+        rotazioneBaseGambaDx: -0.1
+    };
+
     return gruppo;
 
 }
@@ -1050,6 +1067,43 @@ function animaScena3D(){
 
         gruppoPersonaggio3D.position.y = 0.05 + Math.sin(orologioAnimazione) * 0.05;
         gruppoPersonaggio3D.rotation.z = Math.sin(orologioAnimazione * 0.7) * 0.06;
+
+        // Il personaggio si gira gradualmente verso la direzione in cui sta camminando
+        let differenzaAngolo = angoloRotazionePersonaggio - gruppoPersonaggio3D.rotation.y;
+
+        // Ci assicuriamo di girare sempre dal lato più corto
+        while(differenzaAngolo > Math.PI){ differenzaAngolo -= Math.PI * 2; }
+        while(differenzaAngolo < -Math.PI){ differenzaAngolo += Math.PI * 2; }
+
+        gruppoPersonaggio3D.rotation.y += differenzaAngolo * 0.25;
+
+        let arti = gruppoPersonaggio3D.userData.arti;
+
+        if(arti){
+
+            if(personaggioInCammino){
+
+                cicloCamminata += 0.35;
+
+                let oscillazione = Math.sin(cicloCamminata) * 0.5;
+
+                arti.gambaSx.rotation.x = oscillazione;
+                arti.gambaDx.rotation.x = -oscillazione;
+
+                arti.braccioSx.rotation.x = -oscillazione * 0.8;
+                arti.braccioDx.rotation.x = oscillazione * 0.8;
+
+            } else {
+
+                // Torna gradualmente alla posa normale quando è fermo
+                arti.gambaSx.rotation.x += (0 - arti.gambaSx.rotation.x) * 0.2;
+                arti.gambaDx.rotation.x += (0 - arti.gambaDx.rotation.x) * 0.2;
+                arti.braccioSx.rotation.x += (0 - arti.braccioSx.rotation.x) * 0.2;
+                arti.braccioDx.rotation.x += (0 - arti.braccioDx.rotation.x) * 0.2;
+
+            }
+
+        }
 
     }
 
@@ -1119,6 +1173,11 @@ function muovi(dx, dz){
 
     posizioneX = Math.max(-LIMITE_X, Math.min(LIMITE_X, posizioneX + dx));
     posizioneZ = Math.max(-LIMITE_Z, Math.min(LIMITE_Z, posizioneZ + dz));
+
+    // Calcoliamo l'angolo verso cui il personaggio deve girarsi in base alla direzione del movimento
+    if(dx !== 0 || dz !== 0){
+        angoloRotazionePersonaggio = Math.atan2(dx, dz);
+    }
 
     aggiornaPosizionePersonaggio();
 
@@ -1208,6 +1267,7 @@ function iniziaMovimentoContinuo(nomeDirezione, dx, dz){
     fermaMovimentoContinuo();
 
     direzioneAttiva = nomeDirezione;
+    personaggioInCammino = true;
 
     muovi(dx, dz);
 
@@ -1227,6 +1287,7 @@ function fermaMovimentoContinuo(){
     }
 
     direzioneAttiva = null;
+    personaggioInCammino = false;
 
 }
 
