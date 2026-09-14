@@ -141,6 +141,12 @@ let indiceSessione = 0;
 let correttiSessione = 0;
 let edificioSessione = null;
 
+// Bonus a tempo: se rispondi in fretta guadagni punti extra
+const TEMPO_BONUS_SECONDI = 8;
+let tempoInizioDomanda = 0;
+let intervalloTimerDomanda = null;
+let bonusTempoSessione = 0;
+
 
 
 function mescola(array){
@@ -173,6 +179,7 @@ function startQuiz(type){
 
     indiceSessione = 0;
     correttiSessione = 0;
+    bonusTempoSessione = 0;
 
     renderDomandaSessione();
 
@@ -212,6 +219,8 @@ function renderDomandaSessione(){
     ${t("domanda")} ${indiceSessione + 1} ${t("di")} ${domandeSessione.length}
     </p>
 
+    <p id="timerDomanda">⏱️ ${TEMPO_BONUS_SECONDI}s</p>
+
     <p>
     ${domandaCorrente.domanda}
     </p>
@@ -220,16 +229,69 @@ function renderDomandaSessione(){
 
     `;
 
+    avviaTimerDomanda();
+
+}
+
+
+
+function avviaTimerDomanda(){
+
+    tempoInizioDomanda = Date.now();
+
+    if(intervalloTimerDomanda){
+        clearInterval(intervalloTimerDomanda);
+    }
+
+    intervalloTimerDomanda = setInterval(function(){
+
+        let trascorso = (Date.now() - tempoInizioDomanda) / 1000;
+        let rimanente = Math.max(0, TEMPO_BONUS_SECONDI - trascorso);
+
+        let elemento = document.getElementById("timerDomanda");
+
+        if(elemento){
+
+            if(rimanente > 0){
+                elemento.innerHTML = "⏱️ " + Math.ceil(rimanente) + "s (rispondi in fretta per un bonus!)";
+            } else {
+                elemento.innerHTML = "⏱️ Tempo bonus scaduto";
+                clearInterval(intervalloTimerDomanda);
+            }
+
+        } else {
+
+            clearInterval(intervalloTimerDomanda);
+
+        }
+
+    }, 200);
+
 }
 
 
 
 function rispondiSessione(indiceScelto){
 
+    if(intervalloTimerDomanda){
+        clearInterval(intervalloTimerDomanda);
+    }
+
     let scelta = opzioniMostrate[indiceScelto];
 
+    let bonusGuadagnato = false;
+
     if(scelta.corretta){
+
         correttiSessione++;
+
+        let tempoImpiegato = (Date.now() - tempoInizioDomanda) / 1000;
+
+        if(tempoImpiegato <= TEMPO_BONUS_SECONDI){
+            bonusTempoSessione++;
+            bonusGuadagnato = true;
+        }
+
     }
 
     let messaggio = scelta.corretta
@@ -241,6 +303,8 @@ function rispondiSessione(indiceScelto){
     panel.innerHTML = `
 
     <h2>${messaggio}</h2>
+
+    ${bonusGuadagnato ? "<p>⏱️ Bonus velocità! +1 punto extra</p>" : ""}
 
     <button class="quizButton"
     onclick="prossimaDomandaSessione()">
@@ -278,7 +342,7 @@ function finisciSessione(){
     let type = edificioSessione;
     let edificio = buildings[type];
 
-    let punteggio = 5 + correttiSessione;
+    let punteggio = 5 + correttiSessione + bonusTempoSessione;
 
     let recordPrecedente = edificio.migliore || 0;
 
@@ -292,6 +356,10 @@ function finisciSessione(){
 
     }
 
+    let messaggioBonusTempo = bonusTempoSessione > 0
+        ? `<p>⏱️ Bonus velocità totale: +${bonusTempoSessione} punti</p>`
+        : "";
+
     panel.innerHTML = `
 
     <h2>${t("risultato")}</h2>
@@ -299,6 +367,8 @@ function finisciSessione(){
     <p>
     ${t("haiRispostoBene")} ${correttiSessione} ${t("domandeSu")} ${domandeSessione.length}
     </p>
+
+    ${messaggioBonusTempo}
 
     ${messaggioRecord}
 
@@ -739,6 +809,624 @@ let vicinoSalva = false;
 
 
 
+// ---------- Monete 🪙 ----------
+
+const NUMERO_MONETE_IN_CITTA = 6;
+const DISTANZA_RACCOLTA_MONETA = 0.7;
+
+let listaMonete = [];
+let moneteTotali = 0;
+
+
+
+function caricaMoneteTotali(){
+
+    moneteTotali = parseInt(localStorage.getItem(chiave("monete_totali"))) || 0;
+
+}
+
+
+
+function salvaMoneteTotali(){
+
+    localStorage.setItem(chiave("monete_totali"), moneteTotali);
+
+}
+
+
+
+function posizioneCasualeLibera(){
+
+    // Sceglie una posizione a caso dentro i limiti della mappa,
+    // lontana dagli edifici, dall'arcade e dal punto Salva
+    let tentativi = 0;
+
+    while(tentativi < 40){
+
+        let x = (Math.random() * 2 - 1) * (LIMITE_X - 0.6);
+        let z = (Math.random() * 2 - 1) * (LIMITE_Z - 0.6);
+
+        let troppoVicino = false;
+
+        ordineEdifici.forEach(function(nome){
+            let p = posizioniEdifici[nome];
+            if(Math.hypot(x - p.x, z - p.z) < 1.5){
+                troppoVicino = true;
+            }
+        });
+
+        if(Math.hypot(x - posizioneArcade.x, z - posizioneArcade.z) < 1.5){
+            troppoVicino = true;
+        }
+
+        if(Math.hypot(x - posizioneSalva.x, z - posizioneSalva.z) < 1.5){
+            troppoVicino = true;
+        }
+
+        if(!troppoVicino){
+            return { x: x, z: z };
+        }
+
+        tentativi++;
+
+    }
+
+    return { x: 0, z: 0 };
+
+}
+
+
+
+function creaMonetaMesh(){
+
+    let gruppo = new THREE.Group();
+
+    let disco = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.22, 0.22, 0.06, 16),
+        new THREE.MeshStandardMaterial({ color: 0xffd700, metalness: 0.3, roughness: 0.4 })
+    );
+    disco.rotation.x = Math.PI / 2;
+    gruppo.add(disco);
+
+    let bordo = new THREE.Mesh(
+        new THREE.TorusGeometry(0.2, 0.03, 8, 16),
+        new THREE.MeshStandardMaterial({ color: 0xfff3b0 })
+    );
+    gruppo.add(bordo);
+
+    gruppo.position.y = 0.5;
+
+    return gruppo;
+
+}
+
+
+
+function generaMonete(){
+
+    // Rimuove eventuali monete già presenti sulla scena
+    listaMonete.forEach(function(moneta){
+        scena3D.remove(moneta.mesh);
+    });
+
+    listaMonete = [];
+
+    // Quantità casuale di monete (tra 3 e il massimo previsto)
+    let quantita = 3 + Math.floor(Math.random() * (NUMERO_MONETE_IN_CITTA - 2));
+
+    for(let i = 0; i < quantita; i++){
+
+        let posizione = posizioneCasualeLibera();
+
+        let mesh = creaMonetaMesh();
+        mesh.position.set(posizione.x, 0.5, posizione.z);
+
+        scena3D.add(mesh);
+
+        listaMonete.push({ x: posizione.x, z: posizione.z, mesh: mesh, raccolta: false });
+
+    }
+
+}
+
+
+
+function controllaRaccoltaMonete(){
+
+    listaMonete.forEach(function(moneta){
+
+        if(moneta.raccolta){
+            return;
+        }
+
+        let distanza = Math.hypot(posizioneX - moneta.x, posizioneZ - moneta.z);
+
+        if(distanza <= DISTANZA_RACCOLTA_MONETA){
+
+            moneta.raccolta = true;
+            scena3D.remove(moneta.mesh);
+
+            moneteTotali++;
+            salvaMoneteTotali();
+
+            aggiornaContatoreMonete();
+
+            // Quando tutte le monete disponibili sono state raccolte, ne generiamo di nuove
+            if(listaMonete.every(function(m){ return m.raccolta; })){
+
+                setTimeout(generaMonete, 3000);
+
+            }
+
+        }
+
+    });
+
+}
+
+
+
+function aggiornaContatoreMonete(){
+
+    let elemento = document.getElementById("contatoreMonete");
+
+    if(elemento){
+        elemento.innerHTML = "🪙 " + moneteTotali;
+    }
+
+}
+
+
+
+function animaMonete(tempo){
+
+    listaMonete.forEach(function(moneta){
+
+        if(!moneta.raccolta){
+            moneta.mesh.rotation.y += 0.06;
+            moneta.mesh.position.y = 0.5 + Math.sin(tempo * 1.5 + moneta.x) * 0.08;
+        }
+
+    });
+
+}
+
+
+
+// ---------- Animaletto compagno 🐾 ----------
+
+const tipiAnimaletto = {
+
+    capibara: { nome:"Capibara", emoji:"🐹", colore: 0x8b6f47, prezzo: 10 },
+    cane:     { nome:"Cane",     emoji:"🐶", colore: 0xc9975a, prezzo: 15 },
+    gatto:    { nome:"Gatto",    emoji:"🐱", colore: 0xd9d9d9, prezzo: 15 }
+
+};
+
+let animalettoAttivo = null;
+let animalettoMesh = null;
+let animalettoPosizioniStoria = [];
+
+
+
+function caricaAnimalettoSalvato(){
+
+    let salvato = localStorage.getItem(chiave("animaletto_scelto"));
+
+    if(salvato && tipiAnimaletto[salvato]){
+
+        attivaAnimaletto(salvato, false);
+
+    }
+
+}
+
+
+
+function animalettoSbloccato(tipo){
+
+    return localStorage.getItem(chiave("animaletto_sbloccato_" + tipo)) === "si";
+
+}
+
+
+
+function creaAnimalettoMesh(tipo){
+
+    let info = tipiAnimaletto[tipo];
+
+    let gruppo = new THREE.Group();
+
+    let corpo = new THREE.Mesh(
+        new THREE.SphereGeometry(0.22, 10, 10),
+        new THREE.MeshStandardMaterial({ color: info.colore, flatShading: true })
+    );
+    corpo.scale.set(1.3, 0.9, 1);
+    corpo.position.y = 0.22;
+    gruppo.add(corpo);
+
+    let testa = new THREE.Mesh(
+        new THREE.SphereGeometry(0.15, 10, 10),
+        new THREE.MeshStandardMaterial({ color: info.colore, flatShading: true })
+    );
+    testa.position.set(0, 0.3, 0.2);
+    gruppo.add(testa);
+
+    let occhioSx = new THREE.Mesh(new THREE.SphereGeometry(0.02, 6, 6), new THREE.MeshBasicMaterial({ color: 0x2b2438 }));
+    occhioSx.position.set(-0.06, 0.32, 0.32);
+    gruppo.add(occhioSx);
+
+    let occhioDx = new THREE.Mesh(new THREE.SphereGeometry(0.02, 6, 6), new THREE.MeshBasicMaterial({ color: 0x2b2438 }));
+    occhioDx.position.set(0.06, 0.32, 0.32);
+    gruppo.add(occhioDx);
+
+    return gruppo;
+
+}
+
+
+
+function attivaAnimaletto(tipo, salva){
+
+    if(animalettoMesh){
+        scena3D.remove(animalettoMesh);
+    }
+
+    animalettoAttivo = tipo;
+    animalettoMesh = creaAnimalettoMesh(tipo);
+
+    scena3D.add(animalettoMesh);
+
+    if(salva){
+        localStorage.setItem(chiave("animaletto_scelto"), tipo);
+    }
+
+}
+
+
+
+function aggiornaPosizioneAnimaletto(){
+
+    // L'animaletto segue con un piccolo ritardo il percorso del personaggio
+    animalettoPosizioniStoria.unshift({ x: posizioneX, z: posizioneZ });
+
+    if(animalettoPosizioniStoria.length > 8){
+        animalettoPosizioniStoria.pop();
+    }
+
+    if(animalettoMesh && animalettoPosizioniStoria.length >= 8){
+
+        let posizioneRitardata = animalettoPosizioniStoria[7];
+
+        animalettoMesh.position.x = posizioneRitardata.x + 0.5;
+        animalettoMesh.position.z = posizioneRitardata.z + 0.5;
+
+    }
+
+}
+
+
+
+function apriNegozioAnimaletti(){
+
+    let opzioni = "";
+
+    Object.keys(tipiAnimaletto).forEach(function(tipo){
+
+        let info = tipiAnimaletto[tipo];
+        let sbloccato = animalettoSbloccato(tipo);
+        let attivo = animalettoAttivo === tipo;
+
+        let bottone;
+
+        if(attivo){
+
+            bottone = `<button class="quizButton" disabled>${info.emoji} ${info.nome} (già con te!)</button>`;
+
+        } else if(sbloccato){
+
+            bottone = `<button class="quizButton" onclick="attivaAnimaletto('${tipo}', true); apriNegozioAnimaletti();">${info.emoji} ${info.nome} — scegli come compagno</button>`;
+
+        } else {
+
+            bottone = `<button class="quizButton" onclick="acquistaAnimaletto('${tipo}')">${info.emoji} ${info.nome} — 🪙 ${info.prezzo} monete</button>`;
+
+        }
+
+        opzioni += bottone;
+
+    });
+
+    panel.innerHTML = `
+
+    <h2>🐾 Negozio Animaletti</h2>
+
+    <p>Hai 🪙 ${moneteTotali} monete. Raccogli le monete sparse per la città per sbloccare un compagno che ti segue!</p>
+
+    ${opzioni}
+
+    `;
+
+}
+
+
+
+function acquistaAnimaletto(tipo){
+
+    let info = tipiAnimaletto[tipo];
+
+    if(moneteTotali >= info.prezzo){
+
+        moneteTotali -= info.prezzo;
+        salvaMoneteTotali();
+        aggiornaContatoreMonete();
+
+        localStorage.setItem(chiave("animaletto_sbloccato_" + tipo), "si");
+
+        attivaAnimaletto(tipo, true);
+
+    }
+
+    apriNegozioAnimaletti();
+
+}
+
+
+
+// ---------- Evento misterioso giornaliero ❓ ----------
+
+const domandeBonusMisteriose = [
+    { domanda:"Quanti pianeti ci sono nel Sistema Solare?", opzioni:[{testo:"7", corretta:false},{testo:"8", corretta:true},{testo:"9", corretta:false}] },
+    { domanda:"Qual è l'animale più grande del mondo?", opzioni:[{testo:"Elefante", corretta:false},{testo:"Balenottera azzurra", corretta:true},{testo:"Squalo balena", corretta:false}] },
+    { domanda:"Quante zampe ha un ragno?", opzioni:[{testo:"6", corretta:false},{testo:"8", corretta:true},{testo:"10", corretta:false}] },
+    { domanda:"In che continente si trova l'Italia?", opzioni:[{testo:"Europa", corretta:true},{testo:"Asia", corretta:false},{testo:"Africa", corretta:false}] },
+    { domanda:"Qual è il fiume più lungo del mondo?", opzioni:[{testo:"Rio delle Amazzoni", corretta:true},{testo:"Nilo", corretta:false},{testo:"Po", corretta:false}] },
+    { domanda:"Quanti minuti ci sono in un'ora?", opzioni:[{testo:"100", corretta:false},{testo:"60", corretta:true},{testo:"50", corretta:false}] },
+    { domanda:"Che colore diventa il cielo al tramonto?", opzioni:[{testo:"Verde", corretta:false},{testo:"Arancione/rosso", corretta:true},{testo:"Viola scuro", corretta:false}] }
+];
+
+const RICOMPENSA_EVENTO_MISTERIOSO = 5;
+
+let posizioneEventoMisterioso = null;
+let eventoMisteriosoMesh = null;
+let vicinoEventoMisterioso = false;
+let domandaEventoAttuale = null;
+
+
+
+function dataOggiStringa(){
+
+    let oggi = new Date();
+
+    return oggi.getFullYear() + "-" + (oggi.getMonth() + 1) + "-" + oggi.getDate();
+
+}
+
+
+
+function eventoMisteriosoGiaFattoOggi(){
+
+    return localStorage.getItem(chiave("evento_misterioso_data")) === dataOggiStringa();
+
+}
+
+
+
+function creaEventoMisteriosoMesh(){
+
+    let gruppo = new THREE.Group();
+
+    let materiale = new THREE.MeshStandardMaterial({ color: 0x9b59b6, emissive: 0x4a235a, emissiveIntensity: 0.4 });
+
+    let corpo = new THREE.Mesh(new THREE.OctahedronGeometry(0.35, 0), materiale);
+    corpo.position.y = 0.7;
+    gruppo.add(corpo);
+
+    let anello = new THREE.Mesh(
+        new THREE.TorusGeometry(0.45, 0.04, 8, 20),
+        new THREE.MeshBasicMaterial({ color: 0xd7bde2 })
+    );
+    anello.rotation.x = Math.PI / 2;
+    anello.position.y = 0.7;
+    gruppo.add(anello);
+
+    return gruppo;
+
+}
+
+
+
+function impostaEventoMisterioso(){
+
+    if(eventoMisteriosoMesh){
+        scena3D.remove(eventoMisteriosoMesh);
+        eventoMisteriosoMesh = null;
+    }
+
+    if(eventoMisteriosoGiaFattoOggi()){
+        posizioneEventoMisterioso = null;
+        return;
+    }
+
+    posizioneEventoMisterioso = posizioneCasualeLibera();
+
+    eventoMisteriosoMesh = creaEventoMisteriosoMesh();
+    eventoMisteriosoMesh.position.set(posizioneEventoMisterioso.x, 0, posizioneEventoMisterioso.z);
+
+    scena3D.add(eventoMisteriosoMesh);
+
+}
+
+
+
+function controllaEventoMisterioso(){
+
+    if(!posizioneEventoMisterioso || eventoMisteriosoGiaFattoOggi()){
+        return;
+    }
+
+    let distanza = Math.hypot(posizioneX - posizioneEventoMisterioso.x, posizioneZ - posizioneEventoMisterioso.z);
+
+    if(distanza <= DISTANZA_INGRESSO && !vicinoEventoMisterioso){
+
+        vicinoEventoMisterioso = true;
+        apriEventoMisterioso();
+
+    }
+
+    if(distanza > DISTANZA_INGRESSO){
+
+        vicinoEventoMisterioso = false;
+
+    }
+
+}
+
+
+
+function apriEventoMisterioso(){
+
+    domandaEventoAttuale = domandeBonusMisteriose[Math.floor(Math.random() * domandeBonusMisteriose.length)];
+
+    let opzioniMescolate = mescola(domandaEventoAttuale.opzioni);
+
+    let bottoni = opzioniMescolate.map(function(opzione, indice){
+        return `<button class="quizButton" onclick="rispondiEventoMisterioso(${opzione.corretta})">${opzione.testo}</button>`;
+    }).join("");
+
+    panel.innerHTML = `
+
+    <h2>❓ Evento Misterioso!</h2>
+
+    <p>Hai trovato l'evento speciale di oggi! Rispondi bene per guadagnare monete bonus.</p>
+
+    <p>${domandaEventoAttuale.domanda}</p>
+
+    ${bottoni}
+
+    `;
+
+}
+
+
+
+function rispondiEventoMisterioso(corretta){
+
+    localStorage.setItem(chiave("evento_misterioso_data"), dataOggiStringa());
+
+    if(eventoMisteriosoMesh){
+        scena3D.remove(eventoMisteriosoMesh);
+        eventoMisteriosoMesh = null;
+    }
+
+    posizioneEventoMisterioso = null;
+
+    if(corretta){
+
+        moneteTotali += RICOMPENSA_EVENTO_MISTERIOSO;
+        salvaMoneteTotali();
+        aggiornaContatoreMonete();
+
+        panel.innerHTML = `
+
+        <h2>🎉 Risposta esatta!</h2>
+
+        <p>Hai guadagnato 🪙 ${RICOMPENSA_EVENTO_MISTERIOSO} monete bonus!</p>
+
+        <p>Torna domani per un nuovo evento misterioso.</p>
+
+        `;
+
+    } else {
+
+        panel.innerHTML = `
+
+        <h2>😅 Risposta sbagliata</h2>
+
+        <p>Niente monete bonus questa volta. Torna domani per un nuovo evento misterioso!</p>
+
+        `;
+
+    }
+
+}
+
+
+
+// Il punto della mappa dove si trova il negozio degli animaletti
+const posizioneNegozioAnimaletti = { x: -2.6, z: 5.4 };
+
+let vicinoNegozioAnimaletti = false;
+
+
+
+function creaNegozioAnimalettiMesh(){
+
+    let gruppo = new THREE.Group();
+
+    let materialeParete = new THREE.MeshStandardMaterial({ color: 0xe8b04b });
+    let materialeTetto = new THREE.MeshStandardMaterial({ color: 0x8b6f47 });
+    let materialePorta = new THREE.MeshStandardMaterial({ color: 0x5b3a29 });
+    let materialeFinestra = new THREE.MeshStandardMaterial({ color: 0xbde3f5 });
+
+    let corpo = new THREE.Mesh(new THREE.BoxGeometry(1.3, 1.1, 1.1), materialeParete);
+    corpo.position.y = 0.55;
+    gruppo.add(corpo);
+
+    let tetto = new THREE.Mesh(new THREE.ConeGeometry(1.05, 0.65, 4), materialeTetto);
+    tetto.position.y = 1.42;
+    tetto.rotation.y = Math.PI / 4;
+    gruppo.add(tetto);
+
+    let porta = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.5, 0.06), materialePorta);
+    porta.position.set(0, 0.25, 0.56);
+    gruppo.add(porta);
+
+    let finestraSx = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.22, 0.06), materialeFinestra);
+    finestraSx.position.set(-0.42, 0.7, 0.56);
+    gruppo.add(finestraSx);
+
+    let finestraDx = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.22, 0.06), materialeFinestra);
+    finestraDx.position.set(0.42, 0.7, 0.56);
+    gruppo.add(finestraDx);
+
+    // Decorazione: un'insegna a forma di zampetta sopra il tetto
+    let materialeZampa = new THREE.MeshStandardMaterial({ color: 0xffffff });
+
+    let cuscinettoCentrale = new THREE.Mesh(new THREE.SphereGeometry(0.16, 10, 10), materialeZampa);
+    cuscinettoCentrale.position.y = 1.7;
+    gruppo.add(cuscinettoCentrale);
+
+    let posizioniDitaZampa = [
+        { x: -0.16, z: 0.02 },
+        { x: -0.05, z: 0.12 },
+        { x: 0.08, z: 0.12 },
+        { x: 0.18, z: 0.0 }
+    ];
+
+    posizioniDitaZampa.forEach(function(posizione){
+
+        let dito = new THREE.Mesh(new THREE.SphereGeometry(0.07, 8, 8), materialeZampa);
+        dito.position.set(posizione.x, 1.85, posizione.z);
+        gruppo.add(dito);
+
+    });
+
+    gruppo.userData.materialiColorati = [materialeParete];
+    gruppo.userData.scalaBase = 1;
+
+    return gruppo;
+
+}
+
+
+
+const negozioAnimalettiMesh = creaNegozioAnimalettiMesh();
+negozioAnimalettiMesh.position.set(posizioneNegozioAnimaletti.x, 0, posizioneNegozioAnimaletti.z);
+scena3D.add(negozioAnimalettiMesh);
+
+
+
 function apriGestioneSalvataggi(mostraConferma){
 
     let elenco = elencoCitta();
@@ -1123,6 +1811,14 @@ function animaScena3D(){
 
     });
 
+    animaMonete(orologioAnimazione);
+    aggiornaPosizioneAnimaletto();
+
+    if(eventoMisteriosoMesh){
+        eventoMisteriosoMesh.rotation.y += 0.03;
+        eventoMisteriosoMesh.position.y = Math.sin(orologioAnimazione * 1.2) * 0.15;
+    }
+
     renderer3D.render(scena3D, camera3D);
 
 }
@@ -1247,6 +1943,27 @@ function controllaVicinanza(){
         vicinoSalva = false;
 
     }
+
+
+    let distanzaNegozioAnimaletti = Math.hypot(posizioneX - posizioneNegozioAnimaletti.x, posizioneZ - posizioneNegozioAnimaletti.z);
+
+    if(distanzaNegozioAnimaletti <= DISTANZA_INGRESSO && !vicinoNegozioAnimaletti){
+
+        vicinoNegozioAnimaletti = true;
+        apriNegozioAnimaletti();
+
+    }
+
+    if(distanzaNegozioAnimaletti > DISTANZA_INGRESSO){
+
+        vicinoNegozioAnimaletti = false;
+
+    }
+
+
+    controllaRaccoltaMonete();
+
+    controllaEventoMisterioso();
 
 }
 
@@ -1402,6 +2119,14 @@ function inizializzaGioco(){
     updateInfo();
     aggiornaBottoniEdifici();
     aggiornaAspettoEdifici();
+
+    caricaMoneteTotali();
+    aggiornaContatoreMonete();
+    generaMonete();
+
+    caricaAnimalettoSalvato();
+
+    impostaEventoMisterioso();
 
     let personaggioSalvato = localStorage.getItem(chiave("personaggioScelto"));
 
